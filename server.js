@@ -1,0 +1,282 @@
+// Veritas server: zero dependencies, Node 18+.
+//   node server.js            -> http://localhost:3000
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { NansenClient, api, callStats } from "./lib/nansen.js";
+import { scanToken } from "./lib/scan.js";
+import { readReport, saveReport, listReports } from "./lib/reports.js";
+
+import { ROOT, PUBLIC_DIR, SERVERLESS } from "./lib/paths.js";
+loadEnv(path.join(ROOT, ".env"));
+
+const PORT = Number(process.env.PORT || 3000);
+const REPORT_TTL_MS = 6 * 3600_000;
+
+export const CHAINS = ["ethereum", "base", "arbitrum", "bnb", "polygon", "optimism", "avalanche", "linea", "scroll", "mantle", "sonic", "solana"];
+const EVM_ADDR = /^0x[0-9a-fA-F]{40}$/;
+const SOL_ADDR = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
+const live = Boolean(process.env.NANSEN_API_KEY);
+const client = live ? new NansenClient(process.env.NANSEN_API_KEY, { rps: Number(process.env.NANSEN_RPS || 4) }) : null;
+const running = new Set();
+
+// Credit protection for public deployments:
+//   READ_ONLY=1              -> no new live scans; saved reports still work
+//   MAX_SCANS_PER_HOUR=20    -> cap on fresh live scans (default 20; 0 = unlimited)
+const READ_ONLY = /^(1|true|yes)$/i.test(process.env.READ_ONLY || "");
+const capSetting = process.env.MAX_SCANS_PER_HOUR ?? "20";
+const MAX_SCANS_PER_HOUR = Number(capSetting) > 0 ? Number(capSetting) : Infinity;
+const scanTimes = [];
+function scanBudgetLeft() {
+  const cutoff = Date.now() - 3600_000;
+  while (scanTimes.length && scanTimes[0] < cutoff) scanTimes.shift();
+  return MAX_SCANS_PER_HOUR - scanTimes.length;
+}
+
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".json": "application/json" };
+
+function loadEnv(file) {
+  if (!fs.existsSync(file)) return;
+  for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+    if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+  }
+}
+
+function send(res, status, body, type = "application/json") {
+  res.writeHead(status, { "content-type": type, "cache-control": "no-store" });
+  res.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body));
+}
+
+
+
+function validTarget(chain, token) {
+  if (!CHAINS.includes(chain)) return false;
+  return chain === "solana" ? SOL_ADDR.test(token) : EVM_ADDR.test(token);
+}
+
+
+// Server-Sent Events scan stream.
+async function handleScan(req, res, q) {
+  const chain = q.get("chain") || "ethereum";
+  const token = (q.get("token") || "").trim();
+  if (!validTarget(chain, token)) return send(res, 400, { error: "Invalid chain or token address." });
+  if (!live) return send(res, 400, { error: "No NANSEN_API_KEY configured. Add it to .env." });
+
+  res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-store", connection: "keep-alive", "x-accel-buffering": "no" });
+  const emit = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
+  const meta = { name: q.get("name") || "", symbol: q.get("symbol") || "", chain, address: token };
+  emit("meta", meta);
+
+  const cached = readReport(chain, token);
+  if (cached && !q.get("refresh") && Date.now() - Date.parse(cached.scannedAt) < REPORT_TTL_MS) {
+    emit("result", { ...cached, fromCache: true });
+    return res.end();
+  }
+
+  if (READ_ONLY) {
+    emit("failure", { message: "This Veritas instance is read-only: open a token from the leaderboard, or run your own copy for live scans." });
+    return res.end();
+  }
+  if (scanBudgetLeft() <= 0) {
+    emit("failure", { message: "Scan limit reached for this hour. Try a token from the leaderboard, or come back soon." });
+    return res.end();
+  }
+
+  const key = `${chain}:${token.toLowerCase()}`;
+  if (running.has(key)) {
+    emit("failure", { message: "This token is already being scanned. Try again in a minute." });
+    return res.end();
+  }
+  running.add(key);
+  scanTimes.push(Date.now());
+  let closed = false;
+  req.on("close", () => { closed = true; });
+  try {
+    const result = await scanToken(client, chain, token, (e, d) => { if (!closed) emit(e, d); });
+    const report = { ...result, meta };
+    saveReport(report);
+    if (!closed) emit("result", report);
+  } catch (e) {
+    if (!closed) emit("failure", { message: e.message });
+  } finally {
+    running.delete(key);
+    res.end();
+  }
+}
+
+async function handleSearch(res, q) {
+  const query = (q.get("q") || "").trim();
+  if (!query) return send(res, 400, { error: "Missing q" });
+  if (!live) return send(res, 200, { tokens: [], live });
+  try {
+    const r = await api.searchTokens(client, query);
+    const tokens = (r.data?.tokens || []).filter((t) => CHAINS.includes(t.chain) && validTarget(t.chain, t.address));
+    send(res, 200, { tokens, live });
+  } catch (e) {
+    send(res, 502, { error: e.message });
+  }
+}
+
+// Market list per chain from Nansen's token screener, joined with saved trust scores.
+const SCREENER_TIMEFRAMES = ["1h", "24h", "7d"];
+const SCREENER_SORTS = ["volume", "market_cap_usd", "netflow", "buy_volume", "price_change", "liquidity", "token_age_days"];
+async function handleMarkets(res, q) {
+  if (!live) return send(res, 200, { tokens: [], live });
+  const chain = q.get("chain") || "ethereum";
+  const timeframe = q.get("timeframe") || "24h";
+  const orderBy = q.get("sort") || "volume";
+  if (!CHAINS.includes(chain) || !SCREENER_TIMEFRAMES.includes(timeframe) || !SCREENER_SORTS.includes(orderBy)) return send(res, 400, { error: "Invalid market query." });
+  const page = Math.max(1, Math.min(10, Number(q.get("page")) || 1));
+  try {
+    const fresh = q.get("fresh") === "1";
+    const r = await api.tokenScreener(client, chain, { timeframe, orderBy, smartMoney: q.get("sm") === "1", maxAgeDays: fresh ? 7 : null, page });
+    const scored = new Map(listReports().map((x) => [`${x.chain}:${String(x.token).toLowerCase()}`, x]));
+    const tokens = (r.data?.data || [])
+      .filter((t) => t.token_address && validTarget(t.chain || chain, t.token_address))
+      .map((t) => {
+        const report = scored.get(`${t.chain || chain}:${String(t.token_address).toLowerCase()}`);
+        return {
+          chain: t.chain || chain,
+          address: t.token_address,
+          symbol: t.token_symbol,
+          price: t.price_usd,
+          change: t.price_change,
+          marketCap: t.market_cap_usd,
+          fdv: t.fdv,
+          liquidity: t.liquidity,
+          volume: t.volume,
+          netflow: t.netflow,
+          ageDays: t.token_age_days,
+          score: report ? report.score : null,
+          grade: report ? report.grade : null,
+        };
+      });
+    send(res, 200, { tokens, page, lastPage: !!r.data?.pagination?.is_last_page, cached: r.cached });
+  } catch (e) {
+    send(res, 502, { error: e.message });
+  }
+}
+
+// Top buyers and sellers of a token over the last 24h, with Nansen labels.
+async function handleTraders(res, q) {
+  if (!live) return send(res, 200, { buyers: [], sellers: [] });
+  const chain = q.get("chain") || "ethereum";
+  const token = (q.get("token") || "").trim();
+  if (!validTarget(chain, token)) return send(res, 400, { error: "Invalid chain or token address." });
+  // Round to the hour so repeated views hit the cache.
+  const to = new Date(Math.floor(Date.now() / 3600_000) * 3600_000);
+  const from = new Date(to.getTime() - 24 * 3600_000);
+  const iso = (d) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
+  const rows = (r, side) =>
+    (r.data?.data || []).map((t) => ({
+      address: t.address,
+      label: t.address_label || "",
+      usd: side === "BUY" ? t.bought_volume_usd : t.sold_volume_usd,
+      netUsd: (t.bought_volume_usd || 0) - (t.sold_volume_usd || 0),
+    }));
+  try {
+    const [b, s] = await Promise.all([
+      api.whoBoughtSold(client, chain, token, "BUY", iso(from), iso(to)),
+      api.whoBoughtSold(client, chain, token, "SELL", iso(from), iso(to)),
+    ]);
+    send(res, 200, { buyers: rows(b, "BUY"), sellers: rows(s, "SELL"), from: iso(from), to: iso(to) });
+  } catch (e) {
+    send(res, 502, { error: e.message });
+  }
+}
+
+// "Smart Money is buying" feed for the landing page (cached 6h by the client).
+async function handleTrending(res) {
+  if (!live) return send(res, 200, { tokens: [] });
+  try {
+    const r = await api.smartMoneyNetflow(client, "ethereum");
+    const tokens = (r.data?.data || [])
+      .filter((t) => t.token_address && CHAINS.includes(t.chain) && validTarget(t.chain, t.token_address))
+      .map((t) => ({ symbol: t.token_symbol, address: t.token_address, chain: t.chain, netflow7d: t.net_flow_7d_usd }));
+    send(res, 200, { tokens });
+  } catch (e) {
+    send(res, 200, { tokens: [], error: e.message });
+  }
+}
+
+function badge(report) {
+  const score = report ? String(report.score) : "–";
+  const grade = report ? report.grade : "not scanned";
+  const color = !report ? "#5d6570" : report.score >= 80 ? "#3fb67a" : report.score >= 60 ? "#8a93a0" : report.score >= 40 ? "#e0a236" : "#e5534b";
+  const esc = (s) => String(s).replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]);
+  const right = `${score} · ${grade}`;
+  const lw = 104, rw = Math.round(18 + right.length * 6.6);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${lw + rw}" height="22" role="img" aria-label="Veritas trust score: ${esc(right)}">
+<rect width="${lw + rw}" height="22" rx="4" fill="#111418" stroke="#2e3540"/><rect x="${lw}" y="0.5" width="${rw - 0.5}" height="21" rx="3.5" fill="#161a20"/>
+<rect x="8" y="5" width="12" height="12" rx="3" fill="#5b8def"/><path d="M11 8l3 6 3-6" fill="none" stroke="#0b0d10" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<g font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" font-weight="600"><text x="26" y="15" fill="#e6e8eb">Veritas score</text>
+<circle cx="${lw + 10}" cy="11" r="3.5" fill="${color}"/><text x="${lw + 18}" y="15" fill="#e6e8eb">${esc(right)}</text></g></svg>`;
+}
+
+function serveStatic(res, pathname) {
+  const pages = { "/": "index.html", "/app": "app.html", "/report": "report.html" };
+  const rel = pages[pathname] || pathname.slice(1);
+  const file = path.normalize(path.join(PUBLIC_DIR, rel));
+  if (!file.startsWith(PUBLIC_DIR) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return send(res, 404, "Not found", "text/plain");
+  res.writeHead(200, { "content-type": MIME[path.extname(file)] || "application/octet-stream" });
+  fs.createReadStream(file).pipe(res);
+}
+
+// One request handler for both `node server.js` and the Vercel function.
+export async function handler(req, res) {
+  const url = new URL(req.url, "http://localhost");
+  // Vercel rewrites every path to /api/index?path=/original; restore it.
+  if (url.pathname.startsWith("/api/index") && url.searchParams.has("path")) {
+    const original = new URL(url.searchParams.get("path"), "http://localhost");
+    url.searchParams.delete("path");
+    for (const [k, v] of url.searchParams) original.searchParams.set(k, v);
+    url.pathname = original.pathname;
+    url.search = original.search;
+  }
+  const q = url.searchParams;
+  try {
+    switch (url.pathname) {
+      case "/api/config":
+        return send(res, 200, { live, readOnly: READ_ONLY, chains: CHAINS });
+      case "/api/traders":
+        return handleTraders(res, q);
+      case "/api/markets":
+        return handleMarkets(res, q);
+      case "/api/trending":
+        return handleTrending(res);
+      case "/api/search":
+        return handleSearch(res, q);
+      case "/api/scan":
+        return handleScan(req, res, q);
+      case "/api/report": {
+        const r = readReport(q.get("chain") || "ethereum", q.get("token") || "");
+        return r ? send(res, 200, r) : send(res, 404, { error: "No report yet. Scan this token first." });
+      }
+      case "/api/reports":
+        return send(res, 200, listReports());
+      case "/api/badge.svg":
+        return send(res, 200, badge(readReport(q.get("chain") || "ethereum", q.get("token") || "")), "image/svg+xml");
+      case "/api/stats":
+        return send(res, 200, callStats());
+      default:
+        return serveStatic(res, url.pathname);
+    }
+  } catch (e) {
+    send(res, 500, { error: e.message });
+  }
+}
+
+// Vercel can run this file directly as the function; give it the handler.
+export default handler;
+
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain && !SERVERLESS) http.createServer(handler).listen(PORT, "0.0.0.0", () => {
+  console.log(`\n  Veritas running at http://localhost:${PORT}`);
+  console.log(live ? "  Live mode: using your Nansen API key." : "  No NANSEN_API_KEY found: add it to .env to scan tokens (see .env.example).");
+  if (live) console.log(READ_ONLY ? "  Read-only: new live scans are disabled." : MAX_SCANS_PER_HOUR === Infinity ? "  Live scans: unlimited." : `  Live scans capped at ${MAX_SCANS_PER_HOUR} per hour (MAX_SCANS_PER_HOUR).`);
+  console.log("");
+});

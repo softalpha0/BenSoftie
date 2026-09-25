@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Veritas · See who really holds any token</title>
+  <meta name="description" content="Veritas uncovers wallets secretly run by the same owner and turns a token's real holder structure into one explainable trust score. Built on Nansen data." />
+  <meta property="og:title" content="Veritas · See who really holds any token" />
+  <meta property="og:description" content="Hidden wallet clusters, real owner concentration and Smart Money conviction, scored from Nansen on-chain data." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="landing.css" />
+</head>
+<body class="landing">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Veritas home">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="5" fill="var(--accent)"/><path d="M7 7l5 10 5-10" fill="none" stroke="#0b0d10" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Veritas</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="/app?view=markets">Markets</a>
+      <a href="/app?view=markets&mode=fresh&chain=solana">Meme Radar</a>
+      <a href="#how">How it works</a>
+      <a href="#who">Who it's for</a>
+      <a href="#game">Game</a>
+      <a href="/app?view=methodology">Methodology</a>
+    </nav>
+    <a class="btn btn-primary nav-cta" href="/app">Launch app</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">Holder intelligence · built on Nansen</p>
+        <h1>See who really holds any token.</h1>
+        <p class="lede">A token with 800 holders can really be a handful of insiders spread across hundreds of wallets. Veritas finds the wallets secretly run by the same owner, measures true concentration, and turns it into one trust score you can check before you buy, or share to prove your community is real.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="/app">Scan a token</a>
+          <a class="btn btn-lg" href="/app?view=game">Play Spot the Insider</a>
+        </div>
+      </div>
+      <figure class="hero-art" aria-label="Illustration: separate-looking wallets resolving into one owner">
+        <svg viewBox="0 0 440 340" role="img">
+          <title>Wallets that share a funder resolve into one owner</title>
+          <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e66767" stop-opacity=".18"/><stop offset="1" stop-color="#e66767" stop-opacity="0"/></radialGradient></defs>
+          <rect x="1" y="1" width="438" height="338" rx="12" fill="#111418" stroke="#232931"/>
+          <g fill="#9aa3ae" opacity=".55">
+            <circle cx="44" cy="52" r="4"/><circle cx="92" cy="286" r="3"/><circle cx="388" cy="64" r="5"/><circle cx="402" cy="262" r="3"/><circle cx="60" cy="176" r="3"/><circle cx="364" cy="176" r="4"/><circle cx="150" cy="40" r="3"/><circle cx="300" cy="300" r="4"/><circle cx="36" cy="236" r="5"/><circle cx="416" cy="130" r="3"/>
+          </g>
+          <circle cx="220" cy="170" r="120" fill="url(#glow)"/>
+          <g stroke="#e66767" stroke-opacity=".55" stroke-width="1.2">
+            <line x1="220" y1="170" x2="160" y2="110"/><line x1="220" y1="170" x2="286" y2="104"/><line x1="220" y1="170" x2="300" y2="196"/><line x1="220" y1="170" x2="250" y2="250"/><line x1="220" y1="170" x2="160" y2="238"/><line x1="220" y1="170" x2="136" y2="176"/>
+          </g>
+          <g fill="#e66767"><circle cx="160" cy="110" r="10"/><circle cx="286" cy="104" r="8"/><circle cx="300" cy="196" r="11"/><circle cx="250" cy="250" r="9"/><circle cx="160" cy="238" r="7"/><circle cx="136" cy="176" r="9"/></g>
+          <circle cx="220" cy="170" r="7" fill="#ff9b9b" stroke="#111418" stroke-width="2"/>
+          <g font-family="Inter, system-ui, sans-serif" font-size="11" fill="#8a93a0">
+            <text x="232" y="166">Shared first funder</text>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="10.5">
+            <rect x="18" y="296" width="206" height="28" rx="6" fill="#161a20" stroke="#2e3540"/>
+            <text x="30" y="314" fill="#e6e8eb">6 wallets → 1 owner</text>
+          </g>
+        </svg>
+        <figcaption>Illustration. In the app, every star is a real holder from Nansen.</figcaption>
+      </figure>
+    </section>
+
+    <section class="stats-strip" id="liveStats" hidden aria-label="Live totals from this instance">
+      <div><b class="mono" id="sTokens">0</b><span>tokens verified</span></div>
+      <div><b class="mono" id="sWallets">0</b><span>wallets analysed</span></div>
+      <div><b class="mono" id="sClusters">0</b><span>hidden clusters found</span></div>
+      <div><b class="mono" id="sCalls">0</b><span>Nansen API calls</span></div>
+    </section>
+
+    <section class="section" id="how">
+      <header class="section-head"><p class="kicker">How it works</p><h2>From a contract address to a verdict in about a minute.</h2></header>
+      <ol class="steps">
+        <li><span class="step-n mono">01</span><h3>Pull the holders</h3><p>Veritas loads the top 200 holders from Nansen, tagged with Smart Money, exchange and fund labels, and each wallet's 24h, 7d and 30d balance changes.</p></li>
+        <li><span class="step-n mono">02</span><h3>Link the wallets</h3><p>For the largest real owners it asks Nansen who funded them and who they're linked to. Wallets sharing a first funder or multisig collapse into one owner.</p></li>
+        <li><span class="step-n mono">03</span><h3>Score and explain</h3><p>Concentration, hidden clusters, insider selling, Smart Money conviction and fresh-wallet demand combine into a 0–100 score where every point is explained.</p></li>
+      </ol>
+    </section>
+
+    <section class="section" id="who">
+      <div class="two-col">
+        <article class="card pad feature">
+          <p class="kicker">For traders</p>
+          <h3>Check before you buy.</h3>
+          <ul class="checks">
+            <li>See when "hundreds of holders" is really a few insiders</li>
+            <li>Get warned when linked wallets start distributing</li>
+            <li>Know whether Smart Money is entering or leaving</li>
+            <li>Meme Radar: new launches Smart Money is buying, per chain</li>
+            <li>Spot bundled wallets and see who bought in the last 24h</li>
+            <li>Rewind 30 days of holder moves on the map</li>
+          </ul>
+        </article>
+        <article class="card pad feature">
+          <p class="kicker">For projects</p>
+          <h3>Prove your community is real.</h3>
+          <ul class="checks">
+            <li>A public report anyone can verify</li>
+            <li>An embeddable trust badge for your site and docs</li>
+            <li>Spot airdrop farmers and insiders in your own token</li>
+            <li>Track concentration as your holder base grows</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="board">
+      <header class="section-head row"><div><p class="kicker">Leaderboard</p><h2>Recently verified</h2></div><a class="btn" href="/app?view=leaderboard">Full leaderboard</a></header>
+      <div class="card">
+        <table class="table"><thead><tr><th>Token</th><th>Chain</th><th class="num">Clusters</th><th>Trust score</th></tr></thead><tbody id="boardRows"></tbody></table>
+        <p class="empty" id="boardEmpty">No tokens verified yet. <a href="/app">Run the first scan</a>.</p>
+      </div>
+    </section>
+
+    <section class="section" id="game">
+      <div class="card pad game-band">
+        <div>
+          <p class="kicker">Spot the Insider</p>
+          <h2>Can you find the insiders before Veritas does?</h2>
+          <p class="muted">Each round is a real token Veritas has scanned. The links are hidden: pick the wallets you think are secretly run by one owner, then reveal the real clusters. Three rounds, one score.</p>
+          <a class="btn btn-primary btn-lg" href="/app?view=game">Play now</a>
+        </div>
+        <ul class="game-points">
+          <li><b class="mono">+100</b><span>per insider found</span></li>
+          <li><b class="mono">+50</b><span>bonus for the largest cluster</span></li>
+          <li><b class="mono">−25</b><span>per wallet with no hidden links</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="nansen">
+      <header class="section-head"><p class="kicker">Built on Nansen</p><h2>Every number comes from the Nansen API.</h2></header>
+      <div class="endpoints">
+        <div><code>tgm/holders</code><span>Top holders with labels and balance changes</span></div>
+        <div><code>profiler/address/related-wallets</code><span>First funders, multisigs and direct links</span></div>
+        <div><code>tgm/flow-intelligence</code><span>Smart Money, whale and fresh-wallet flows</span></div>
+        <div><code>smart-money/netflow</code><span>What Smart Money is buying this week</span></div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <h2>Know who's behind the token.</h2>
+      <a class="btn btn-primary btn-lg" href="/app">Launch Veritas</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Veritas · built for the Nansen Meridian Buildathon</span>
+    <span class="muted">Heuristic analysis of public on-chain data. Not financial advice.</span>
+  </footer>
+
+  <script>
+  (async () => {
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const short = (a) => (a && a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a || "");
+    const color = (s) => (s >= 80 ? "var(--good)" : s >= 60 ? "var(--text)" : s >= 40 ? "var(--warn)" : "var(--bad)");
+    let list = [], stats = { successful: 0 };
+    try { [list, stats] = await Promise.all([fetch("/api/reports").then((r) => r.json()), fetch("/api/stats").then((r) => r.json())]); } catch { /* offline */ }
+    if (list.length) {
+      $("liveStats").hidden = false;
+      $("sTokens").textContent = list.length.toLocaleString("en-US");
+      $("sWallets").textContent = list.reduce((a, r) => a + (r.owners || 0), 0).toLocaleString("en-US");
+      $("sClusters").textContent = list.reduce((a, r) => a + (r.clusters || 0), 0).toLocaleString("en-US");
+      $("sCalls").textContent = (stats.successful || 0).toLocaleString("en-US");
+    }
+    const recent = [...list].sort((a, b) => Date.parse(b.scannedAt) - Date.parse(a.scannedAt)).slice(0, 6);
+    $("boardEmpty").hidden = recent.length > 0;
+    $("boardRows").innerHTML = recent.map((r) => `<tr class="clickable" onclick="location.href='/app?chain=${encodeURIComponent(r.chain)}&token=${encodeURIComponent(r.token)}'">
+      <td><div class="tok"><b>${esc(r.symbol || short(r.token))}</b><span class="muted">${esc(r.name || "")}</span></div></td><td class="muted">${esc(r.chain)}</td><td class="num">${r.clusters ?? 0}</td>
+      <td><div class="scorebar"><span class="mono" style="color:${color(r.score)}">${r.score}</span><div><div style="width:${r.score}%;background:${color(r.score)}"></div></div></div></td></tr>`).join("");
+  })();
+  </script>
+</body>
+</html>
