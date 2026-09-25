@@ -1,40 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>BenSoftie</title>
-        <style>
-            body { font-family: system-ui, Arial, sans-serif; max-width: 700px; margin: 40px auto; line-height: 1.6; }
-            header { text-align: center; }
-            img { max-width: 100%; height: auto; border-radius: 8px; }
-            ul { padding-left: 1.2rem; }
-            .bio { background: #f6f6f6; padding: 12px 16px; border-radius: 8px; }
-          </style>
-    </head>
-    <body>
-        <header>
-            <h1>!BenSoftie (Also known as Softalpha)</h1>
-        </header>
-        <section>
-            <h2>About Me</h2>
-            <p class="bio">I am a fullstack developer, specializing in modern web technologis and web3 applications. Good in rust, python, javascript, solidity, and other languages. I love to build things and help people learn.</p>
-             
-        </section>
-    
-<section>
-    <h2>photo</h2>
-    <img src="/Users/macbook/Downloads/image.jpg" alt="BenSoftie" />
-</section>
-       
-        <section>
-            <h2>Hobbies</h2>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BenSoftie · Fullstack &amp; Web3 Developer</title>
+    <meta name="description" content="BenSoftie (Softalpha) — fullstack developer building modern web and web3 applications with Rust, Python, JavaScript and Solidity." />
+    <meta property="og:title" content="BenSoftie · Fullstack &amp; Web3 Developer" />
+    <meta property="og:description" content="Fullstack developer building modern web and web3 applications." />
+    <meta property="og:image" content="assets/avatar.png" />
+    <meta name="theme-color" content="#0f1115" />
+    <link rel="icon" href="assets/avatar.png" />
+    <style>
+        :root {
+            --bg: #fafaf9;
+            --surface: #ffffff;
+            --text: #16181d;
+            --muted: #5b6270;
+            --border: #e6e6e3;
+            --accent: #c2410c;
+            --accent-soft: #fdeee4;
+            --on-accent: #ffffff;
+            --radius: 14px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f1115;
+                --surface: #171a21;
+                --text: #eceef2;
+                --muted: #9aa1ad;
+                --border: #262a33;
+                --accent: #fb923c;
+                --accent-soft: #2a1a10;
+                --on-accent: #1a0d05;
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            line-height: 1.6;
+        }
+        a { color: var(--accent); }
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+        /* Nav */
+        nav {
+            position: sticky; top: 0; z-index: 10;
+            background: color-mix(in srgb, var(--bg) 85%, transparent);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+        }
+        nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+        .logo { font-weight: 800; text-decoration: none; color: var(--text); letter-spacing: -0.02em; }
+        .logo span { color: var(--accent); }
+        nav ul { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; }
+        nav ul a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+        nav ul a:hover { color: var(--text); }
+
+        /* Hero */
+        .hero {
+            display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center;
+            padding: 72px 0 56px;
+        }
+        .eyebrow { color: var(--accent); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 8px; }
+        h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 16px; }
+        .lead { font-size: 1.15rem; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+        .btn {
+            display: inline-block; padding: 11px 20px; border-radius: 999px;
+            font-weight: 600; text-decoration: none; border: 1px solid var(--border); color: var(--text);
+        }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+        .btn:hover { transform: translateY(-1px); }
+        .avatar {
+            width: 100%; max-width: 320px; justify-self: center;
+            background: var(--accent-soft); border-radius: 50%; padding: 24px;
+        }
+        .avatar img { width: 100%; height: auto; display: block; }
+
+        /* Sections */
+        section { padding: 48px 0; border-top: 1px solid var(--border); }
+        h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 20px; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 22px 24px;
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+        .card p { margin: 0; color: var(--muted); }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 0; }
+        .chips li {
+            padding: 7px 14px; border-radius: 999px; font-weight: 500; font-size: 0.95rem;
+            background: var(--surface); border: 1px solid var(--border);
+        }
+
+        .hobbies { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .hobbies li { display: flex; align-items: center; gap: 10px; }
+        .hobbies .icon { font-size: 1.4rem; }
+
+        footer { padding: 32px 0 48px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+
+        @media (max-width: 680px) {
+            nav ul { gap: 14px; }
+            nav ul li.hide-sm { display: none; }
+            .hero { grid-template-columns: 1fr; padding-top: 40px; text-align: center; }
+            .hero .avatar { order: -1; max-width: 200px; }
+            .lead { margin-left: auto; margin-right: auto; }
+            .actions { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="wrap">
+            <a class="logo" href="#top">Ben<span>Softie</span></a>
             <ul>
-                <li>Vibe Coding</li>
-                <li>Reading Novels</li>
-                <li>Plaging Games</li>
-                <li>watching Anime</li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li class="hide-sm"><a href="#hobbies">Hobbies</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="wrap" id="top">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Fullstack &amp; Web3 Developer</p>
+                <h1>Hi, I'm BenSoftie.</h1>
+                <p class="lead">Also known as <strong>Softalpha</strong>. I build modern web apps and web3 products — and I love helping people learn to build too.</p>
+                <div class="actions">
+                    <a class="btn primary" href="https://github.com/softalpha0" target="_blank" rel="noopener">View my GitHub</a>
+                    <a class="btn" href="#contact">Get in touch</a>
+                </div>
+            </div>
+            <div class="avatar">
+                <img src="assets/avatar.png" alt="BenSoftie's avatar: a chili pepper in a fedora reading a newspaper" width="851" height="900" />
+            </div>
+        </header>
+
+        <section id="about">
+            <h2>About me</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Fullstack web</h3>
+                    <p>Modern frontends and solid backends, from UI to API to database.</p>
+                </div>
+                <div class="card">
+                    <h3>Web3</h3>
+                    <p>Smart contracts in Solidity and dApps that connect them to real users.</p>
+                </div>
+                <div class="card">
+                    <h3>Teaching</h3>
+                    <p>I enjoy sharing what I know and helping others get started building.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills">
+            <h2>Skills</h2>
+            <ul class="chips">
+                <li>Rust</li>
+                <li>Python</li>
+                <li>JavaScript</li>
+                <li>Solidity</li>
+                <li>HTML &amp; CSS</li>
+                <li>Web3</li>
             </ul>
         </section>
-    </body>
+
+        <section id="hobbies">
+            <h2>When I'm not coding</h2>
+            <ul class="hobbies">
+                <li class="card"><span class="icon" aria-hidden="true">⚡</span> Vibe coding</li>
+                <li class="card"><span class="icon" aria-hidden="true">📚</span> Reading novels</li>
+                <li class="card"><span class="icon" aria-hidden="true">🎮</span> Playing games</li>
+                <li class="card"><span class="icon" aria-hidden="true">🍥</span> Watching anime</li>
+            </ul>
+        </section>
+
+        <section id="contact">
+            <h2>Let's build something</h2>
+            <div class="card">
+                <p>Have a project, a question, or just want to talk code? The best place to find me is on GitHub.</p>
+                <p style="margin-top:16px;"><a class="btn primary" href="https://github.com/softalpha0" target="_blank" rel="noopener">github.com/softalpha0</a></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wrap">© <span id="year">2026</span> BenSoftie (Softalpha)</div>
+    </footer>
+    <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
 </html>
