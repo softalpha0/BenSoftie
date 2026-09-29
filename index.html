@@ -3,160 +3,213 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BenSoftie · Fullstack &amp; Web3 Developer</title>
-  <meta name="description" content="BenSoftie (Softalpha): fullstack and web3 developer building tools that make on-chain data make sense. Creator of Veritas, built on Nansen." />
-  <meta property="og:title" content="BenSoftie · Fullstack & Web3 Developer" />
-  <meta property="og:description" content="I build tools that make on-chain data make sense. Creator of Veritas." />
-  <meta property="og:image" content="assets/avatar.png" />
-  <meta name="theme-color" content="#0b0c0e" />
-  <link rel="icon" href="assets/avatar.png" />
+  <title>Softalpha · Community Lead, DevRel &amp; Builder</title>
+  <meta name="description" content="Softalpha: community lead and developer relations in web3 since 2018. Grew PepperDex to 40k+ members, DevRel at Spicenet, and builder of Veritas on Nansen data." />
+  <meta property="og:title" content="Softalpha · Community Lead, DevRel & Builder" />
+  <meta property="og:description" content="I grow developer communities, and I build the tools they use." />
+  <meta property="og:image" content="assets/softalpha.png" />
+  <meta name="theme-color" content="#e02301" />
+  <link rel="icon" href="assets/softalpha.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0c0e;
-      --surface: #121417;
-      --surface-2: #181b1f;
-      --border: #23272d;
-      --border-strong: #2f343b;
-      --text: #ececee;
-      --soft: #c4c7cc;
-      --muted: #8b9098;
-      --faint: #5f646c;
-      --accent: #f5813f;
-      --accent-ink: #1a0d05;
-      --good: #3fb67a;
-      --radius: 10px;
+      --red: #e02301;
+      --red-dark: #b81c00;
+      --red-soft: #fdebe6;
+      --ink: #0b0b0b;
+      --text: #1b1b1b;
+      --muted: #5c5c5c;
+      --faint: #8a8a8a;
+      --paper: #ffffff;
+      --bg: #f7f6f4;
+      --line: #e6e3de;
+      --display: "Oswald", "Arial Narrow", Impact, sans-serif;
       --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
     a { color: inherit; }
-    img { max-width: 100%; display: block; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    .mono { font-family: var(--mono); }
-    .muted { color: var(--muted); }
-    .kicker { color: var(--accent); font: 600 12px/1 var(--font); letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 14px; }
+    img { display: block; max-width: 100%; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .display { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; }
+    .red { color: var(--red); }
+    .kicker { font: 600 13px/1 var(--font); letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin: 0 0 16px; }
 
-    /* Nav */
-    .nav { position: sticky; top: 0; z-index: 10; background: rgba(11, 12, 14, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-    .nav .wrap { display: flex; align-items: center; gap: 28px; height: 60px; }
-    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; letter-spacing: -0.01em; }
-    .logo img { width: 28px; height: 28px; border-radius: 8px; background: var(--surface-2); object-fit: contain; }
-    .nav-links { display: flex; gap: 4px; margin-left: auto; }
-    .nav-links a { color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-weight: 500; font-size: 14px; }
-    .nav-links a:hover { color: var(--text); background: var(--surface-2); }
-    .btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; }
-    .btn:hover { background: var(--surface-2); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    .btn-primary:hover { background: #ff9057; }
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 999px; font-weight: 600; font-size: 15px; text-decoration: none; border: 2px solid var(--ink); color: var(--ink); background: transparent; white-space: nowrap; transition: transform 0.15s, background 0.15s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-red { background: var(--red); border-color: var(--red); color: #fff; }
+    .btn-red:hover { background: var(--red-dark); border-color: var(--red-dark); }
+    .btn-ink { background: var(--ink); color: #fff; }
     .btn svg { width: 16px; height: 16px; }
 
+    /* Nav */
+    .nav { position: sticky; top: 0; z-index: 20; background: rgba(247, 246, 244, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+    .wordmark { font-family: var(--display); font-weight: 700; font-size: 26px; text-decoration: none; letter-spacing: 0.01em; color: var(--ink); }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 15px; padding: 6px 12px; border-radius: 999px; }
+    .nav-links a:hover { color: var(--ink); background: var(--paper); }
+    .nav .btn { height: 38px; padding: 0 16px; font-size: 14px; }
+
     /* Hero */
-    .hero { padding: 88px 0 72px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: center; }
-    .hero h1 { font-size: clamp(36px, 5.4vw, 58px); line-height: 1.04; letter-spacing: -0.035em; margin: 0 0 20px; }
-    .hero h1 span { color: var(--accent); }
-    .lede { color: var(--soft); font-size: 18px; line-height: 1.65; margin: 0 0 30px; max-width: 56ch; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .id-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
-    .id-card .portrait { background: radial-gradient(circle at 50% 60%, #2a1a12 0%, var(--surface-2) 70%); border-radius: 12px; padding: 18px 28px 6px; margin-bottom: 18px; }
-    .id-card .portrait img { width: auto; max-width: 100%; max-height: 230px; margin: 0 auto; }
-    .id-card dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: 14px; }
-    .id-card dt { color: var(--muted); }
-    .id-card dd { margin: 0; text-align: right; }
-    .status { display: inline-flex; align-items: center; gap: 7px; }
-    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px rgba(63, 182, 122, 0.18); }
+    .hero { padding: 64px 0 56px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+    .hero h1 { font-size: clamp(46px, 7.6vw, 96px); margin: 0 0 18px; color: var(--ink); white-space: nowrap; }
+    .hero .role { font: 600 clamp(15px, 1.6vw, 19px)/1.3 var(--font); letter-spacing: 0.16em; text-transform: uppercase; margin: 0 0 22px; }
+    .hero .statement { font-size: clamp(20px, 2.2vw, 26px); line-height: 1.35; font-weight: 600; color: var(--ink); margin: 0 0 14px; max-width: 30ch; }
+    .hero .lede { color: var(--muted); font-size: 17px; margin: 0 0 26px; max-width: 54ch; border-left: 3px solid var(--red); padding-left: 16px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 28px; font-size: 15px; color: var(--text); }
+    .meta span, .meta a { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .meta svg { width: 17px; height: 17px; color: var(--red); flex: none; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .poster { background: var(--red); border-radius: 22px; padding: 30px 30px 26px; color: #fff; position: relative; overflow: hidden; }
+    .poster::after { content: ""; position: absolute; inset: auto -40px -40px auto; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 1.4px, transparent 1.6px) 0 0 / 12px 12px; opacity: 0.6; }
+    .poster .lockin { font-family: var(--display); font-weight: 700; font-size: 34px; text-align: center; letter-spacing: 0.04em; margin: 0 0 18px; }
+    .poster .avatar { width: min(78%, 300px); height: auto; aspect-ratio: 1; object-fit: cover; margin: 0 auto 22px; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25); }
+    .poster dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: 14px; position: relative; z-index: 1; }
+    .poster dt { opacity: 0.8; }
+    .poster dd { margin: 0; text-align: right; font-weight: 600; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--ink); color: #fff; border-radius: 18px; overflow: hidden; }
+    .stats > div { padding: 26px 24px; border-right: 1px solid #262626; }
+    .stats > div:last-child { border-right: 0; }
+    .stats b { display: block; font-family: var(--display); font-size: 44px; line-height: 1; margin-bottom: 8px; }
+    .stats b em { font-style: normal; color: var(--red); }
+    .stats span { color: #bdbdbd; font-size: 14px; }
 
     /* Sections */
-    section.block { padding: 80px 0; border-top: 1px solid var(--border); }
-    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 32px; flex-wrap: wrap; }
-    .section-head h2 { font-size: clamp(26px, 3.4vw, 36px); letter-spacing: -0.025em; line-height: 1.1; margin: 0; max-width: 22ch; }
+    section.block { padding: 96px 0 0; }
+    .section-head { display: flex; align-items: center; gap: 18px; margin-bottom: 36px; }
+    .section-head .icon { width: 46px; height: 46px; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; flex: none; }
+    .section-head .icon svg { width: 22px; height: 22px; }
+    .section-head h2 { font-size: clamp(34px, 4.6vw, 52px); margin: 0; color: var(--ink); }
+    .section-head .rule { flex: 1; height: 2px; background: var(--red); opacity: 0.85; }
 
-    /* Featured project */
-    .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: grid; grid-template-columns: 1.1fr 1fr; }
-    .feature-copy { padding: 36px; }
-    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .tag { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); }
-    .tag.hot { color: var(--accent); border-color: rgba(245, 129, 63, 0.35); background: rgba(245, 129, 63, 0.08); }
-    .feature h3 { font-size: 30px; letter-spacing: -0.025em; margin: 0 0 6px; }
-    .feature .tagline { color: var(--accent); font-weight: 600; margin: 0 0 16px; }
-    .feature p { color: var(--soft); margin: 0 0 18px; }
-    .checks { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 9px; }
-    .checks li { position: relative; padding-left: 24px; color: var(--soft); font-size: 14px; }
-    .checks li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 10px; height: 6px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); }
-    .stack-line { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 24px; }
-    .feature-art { background: #0f1114; border-left: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; padding: 28px; }
-    .feature-art svg { width: 100%; height: auto; }
-    .feature-art figcaption { color: var(--faint); font-size: 12px; margin-top: 10px; }
+    /* Experience */
+    .timeline { position: relative; }
+    .job { display: grid; grid-template-columns: 200px 1fr; gap: 28px; padding: 0 0 40px 34px; position: relative; }
+    .job::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 0; width: 2px; background: var(--line); }
+    .job:last-child::before { display: none; }
+    .job::after { content: ""; position: absolute; left: 0; top: 6px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 5px var(--red-soft); }
+    .job .when { font: 700 15px/1.3 var(--font); color: var(--red); }
+    .job .org { font-weight: 600; color: var(--text); margin-top: 4px; }
+    .job .card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+    .job h3 { font-size: 20px; margin: 0 0 10px; color: var(--ink); }
+    .job ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .job li { margin: 5px 0; }
+    .job .highlight { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--red); background: var(--red-soft); padding: 4px 10px; border-radius: 999px; font-size: 13px; }
 
-    .capabilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 24px; }
-    .capabilities > div { background: var(--surface); padding: 22px; }
-    .capabilities b { display: block; margin-bottom: 6px; }
-    .capabilities span { color: var(--muted); font-size: 14px; }
+    /* Featured build */
+    .build { display: grid; grid-template-columns: 1.1fr 1fr; background: var(--ink); color: #fff; border-radius: 22px; overflow: hidden; }
+    .build-copy { padding: 40px; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .pill { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; background: #1f1f1f; color: #d0d0d0; }
+    .pill.hot { background: var(--red); color: #fff; }
+    .build h3 { font-size: 56px; margin: 0 0 8px; }
+    .build .tagline { color: var(--red); font-weight: 700; font-size: 18px; margin: 0 0 16px; }
+    .build p { color: #cfcfcf; margin: 0 0 18px; }
+    .build ul { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 9px; }
+    .build li { position: relative; padding-left: 24px; color: #e3e3e3; font-size: 15px; }
+    .build li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 10px; height: 6px; border-left: 2px solid var(--red); border-bottom: 2px solid var(--red); transform: rotate(-45deg); }
+    .build .stack-line { font-family: var(--mono); font-size: 12px; color: #9a9a9a; margin: 0 0 24px; }
+    .build .btn { border-color: #fff; color: #fff; }
+    .build .btn-red { border-color: var(--red); }
+    .build-art { background: #141414; display: flex; flex-direction: column; justify-content: center; padding: 30px; border-left: 1px solid #222; }
+    .build-art svg { width: 100%; height: auto; }
+    .build-art figcaption { color: #7d7d7d; font-size: 12px; margin-top: 10px; }
+    .github-more { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 24px; border: 2px dashed var(--line); border-radius: 16px; }
+    .github-more p { margin: 0; color: var(--muted); }
 
-    .more { margin-top: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; border: 1px dashed var(--border-strong); border-radius: 12px; flex-wrap: wrap; }
-    .more p { margin: 0; color: var(--soft); }
-
-    /* Stack */
-    .stack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .stack-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
-    .stack-card h3 { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 14px; }
+    /* Expertise */
+    .skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .skill-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+    .skill-card h3 { font-family: var(--display); text-transform: uppercase; font-size: 22px; margin: 0 0 14px; color: var(--ink); letter-spacing: 0.02em; }
     .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-    .chips li { padding: 5px 11px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); font-size: 14px; font-weight: 500; }
+    .chips li { padding: 6px 12px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; font-weight: 500; }
+    .skill-card.red { background: var(--red); border-color: var(--red); color: #fff; }
+    .skill-card.red h3 { color: #fff; }
+    .skill-card.red .chips li { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3); color: #fff; }
 
-    /* About */
-    .about { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: start; }
-    .about p { color: var(--soft); font-size: 17px; line-height: 1.7; margin: 0 0 16px; }
-    .off-hours { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
-    .off-hours h3 { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 12px; }
-    .off-hours ul { list-style: none; margin: 0; padding: 0; }
-    .off-hours li { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .off-hours li:last-child { border-bottom: 0; }
-    .off-hours .ico { width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); display: grid; place-items: center; font-size: 15px; }
+    /* Education + languages */
+    .edu-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; align-items: start; }
+    .edu { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 8px 24px; }
+    .edu-item { display: grid; grid-template-columns: 130px 1fr; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+    .edu-item:last-child { border-bottom: 0; }
+    .edu-item .when { font-weight: 700; color: var(--red); }
+    .edu-item h3 { margin: 0; font-size: 18px; color: var(--ink); }
+    .edu-item .school { color: var(--red); font-weight: 600; font-size: 15px; margin: 2px 0 4px; }
+    .edu-item p { margin: 0; color: var(--muted); font-size: 15px; }
+    .side-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+    .side-card + .side-card { margin-top: 18px; }
+    .side-card h3 { font-family: var(--display); text-transform: uppercase; font-size: 22px; margin: 0 0 16px; color: var(--ink); }
+    .lang { margin-bottom: 14px; }
+    .lang:last-child { margin-bottom: 0; }
+    .lang .row { display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .lang .row span:last-child { color: var(--muted); font-weight: 500; }
+    .bar { height: 8px; border-radius: 999px; background: var(--red-soft); overflow: hidden; }
+    .bar div { height: 100%; background: var(--red); border-radius: 999px; }
+    .hobbies { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .hobbies li { display: flex; align-items: center; gap: 12px; }
+    .hobbies .ico { width: 32px; height: 32px; border-radius: 50%; background: var(--red-soft); display: grid; place-items: center; }
 
     /* Contact */
-    .contact { text-align: center; padding: 96px 0; border-top: 1px solid var(--border); }
-    .contact h2 { font-size: clamp(30px, 4.4vw, 46px); letter-spacing: -0.03em; margin: 0 0 14px; }
-    .contact p { color: var(--soft); font-size: 17px; margin: 0 auto 28px; max-width: 52ch; }
-    .contact .actions { justify-content: center; }
-    footer { border-top: 1px solid var(--border); padding: 24px 0; color: var(--faint); font-size: 13px; }
+    .contact { margin-top: 96px; background: var(--red); color: #fff; padding: 84px 0; }
+    .contact-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+    .contact h2 { font-size: clamp(48px, 7vw, 88px); margin: 0 0 16px; }
+    .contact p { font-size: 18px; margin: 0 0 28px; opacity: 0.92; max-width: 40ch; }
+    .contact .btn { border-color: #fff; color: #fff; }
+    .contact .btn-white { background: #fff; color: var(--red); }
+    .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .links a, .links div { display: flex; align-items: center; gap: 14px; background: rgba(0, 0, 0, 0.18); border-radius: 14px; padding: 14px 18px; text-decoration: none; }
+    .links a:hover { background: rgba(0, 0, 0, 0.28); }
+    .links .ico { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); display: grid; place-items: center; flex: none; }
+    .links .ico svg { width: 18px; height: 18px; color: #fff; }
+    .links b { display: block; font-size: 15px; }
+    .links span { font-size: 14px; opacity: 0.9; }
+    footer { background: var(--ink); color: #9a9a9a; font-size: 14px; padding: 22px 0; }
     footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
-    @media (max-width: 900px) {
-      .hero, .feature, .about { grid-template-columns: 1fr; }
-      .hero { padding: 48px 0 56px; gap: 36px; }
-      .feature-art { border-left: 0; border-top: 1px solid var(--border); }
-      .feature-copy { padding: 26px; }
-      .capabilities { grid-template-columns: 1fr; }
-      .stack-grid { grid-template-columns: 1fr 1fr; }
-      .nav-links a.hide-sm { display: none; }
-      section.block { padding: 60px 0; }
+    @media (max-width: 960px) {
+      .hero, .build, .contact-grid, .edu-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 40px; gap: 36px; }
+      .poster { max-width: 460px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats > div:nth-child(2) { border-right: 0; }
+      .stats > div:nth-child(-n+2) { border-bottom: 1px solid #262626; }
+      .skills { grid-template-columns: 1fr; }
+      .build-art { border-left: 0; border-top: 1px solid #222; }
+      .build-copy { padding: 28px; }
+      .nav-links { display: none; }
+      .nav .btn { margin-left: auto; }
+      section.block { padding-top: 72px; }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
       .wrap { padding: 0 16px; }
-      .stack-grid { grid-template-columns: 1fr; }
-      .nav .wrap { gap: 12px; }
-      .nav .btn { display: none; }
+      .job { grid-template-columns: 1fr; gap: 10px; padding-left: 30px; }
+      .edu-item { grid-template-columns: 1fr; gap: 4px; }
+      .section-head .rule { display: none; }
+      .stats b { font-size: 36px; }
+      .build h3 { font-size: 44px; }
     }
   </style>
 </head>
 <body>
   <nav class="nav" aria-label="Main">
     <div class="wrap">
-      <a class="logo" href="#top"><img src="assets/avatar.png" alt="" width="28" height="28" />BenSoftie</a>
+      <a class="wordmark" href="#top">SOFT<span class="red">ALPHA</span></a>
       <div class="nav-links">
+        <a href="#experience">Experience</a>
         <a href="#work">Work</a>
-        <a href="#stack" class="hide-sm">Stack</a>
-        <a href="#about" class="hide-sm">About</a>
+        <a href="#expertise">Expertise</a>
         <a href="#contact">Contact</a>
       </div>
-      <a class="btn" href="https://github.com/softalpha0" target="_blank" rel="noopener">
-        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        GitHub
-      </a>
+      <a class="btn btn-red" href="assets/Softalpha-CV.pdf" download>Download CV</a>
     </div>
   </nav>
 
@@ -164,133 +217,217 @@
     <div class="wrap">
       <header class="hero">
         <div>
-          <p class="kicker">Fullstack &amp; Web3 developer</p>
-          <h1>I build tools that make <span>on-chain data</span> make sense.</h1>
-          <p class="lede">I'm BenSoftie (also known as Softalpha). I design and ship products end to end, from data pipelines and APIs to the interface people actually use, with a focus on crypto and on-chain analytics.</p>
+          <h1 class="display">Soft<span class="red">alpha</span></h1>
+          <p class="role">Community Lead · DevRel · Builder</p>
+          <p class="statement">I grow developer communities, and I build the tools they use.</p>
+          <p class="lede">Community lead and developer relations professional passionate about building thriving communities, driving developer adoption, and creating impact through technology and collaboration.</p>
+          <div class="meta">
+            <a href="mailto:softonchain@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>softonchain@gmail.com</a>
+            <span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>Remote</span>
+            <a href="https://x.com/TweetBysoft" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.2L23 22h-6.6l-5.2-6.8L5.3 22H2.2l7.7-8.8L1.8 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg>@TweetBysoft</a>
+          </div>
           <div class="actions">
-            <a class="btn btn-primary" href="#work">See my work</a>
+            <a class="btn btn-red" href="#work">See my work</a>
             <a class="btn" href="#contact">Get in touch</a>
           </div>
         </div>
-        <aside class="id-card" aria-label="Profile">
-          <div class="portrait"><img src="assets/avatar.png" alt="BenSoftie's avatar: a chili pepper in a fedora reading a newspaper" width="851" height="900" /></div>
+        <aside class="poster" aria-label="Profile">
+          <p class="lockin">Lock in</p>
+          <img class="avatar" src="assets/softalpha.png" alt="Softalpha's avatar: a grey cat in a pirate bandana and orange overalls" width="480" height="480" />
           <dl>
-            <dt>Focus</dt><dd>Web3 &amp; data tools</dd>
-            <dt>Languages</dt><dd class="mono">Rust · Python · JS · Solidity</dd>
-            <dt>Latest</dt><dd><a href="#work">Veritas</a></dd>
-            <dt>Status</dt><dd><span class="status">Open to collaborations</span></dd>
+            <dt>Web3 since</dt><dd>2018</dd>
+            <dt>Latest role</dt><dd>DevRel &amp; Event Host · Spicenet</dd>
+            <dt>Latest build</dt><dd>Veritas</dd>
           </dl>
         </aside>
       </header>
+
+      <div class="stats" aria-label="Highlights">
+        <div><b>40K<em>+</em></b><span>active members grown at PepperDex</span></div>
+        <div><b>2018</b><span>building web3 communities since</span></div>
+        <div><b>2</b><span>communities built from day one</span></div>
+        <div><b>1</b><span>live product shipped on Nansen data</span></div>
+      </div>
     </div>
+
+    <section class="block" id="experience">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 12h18"/></svg></span>
+          <h2 class="display">Experience</h2><span class="rule"></span>
+        </div>
+        <div class="timeline">
+          <article class="job">
+            <div><div class="when">2024 – 2026</div><div class="org">Spicenet.io</div></div>
+            <div class="card">
+              <h3>DevRel and Event Host</h3>
+              <ul>
+                <li>Helped developers understand Spicenet's technology and hosted different events both online and offline.</li>
+                <li>Grew the community by creating engaging content and organizing interactive sessions.</li>
+                <li>Built strong relationships with users and developers, driving adoption and community growth.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="job">
+            <div><div class="when">2020 – 2023</div><div class="org">PepperDex</div></div>
+            <div class="card">
+              <h3>Community Lead</h3>
+              <ul>
+                <li>Helped PepperDex build their community from scratch to 40k+ active members.</li>
+                <li>Planned and executed community campaigns, AMAs, and workshops.</li>
+                <li>Fostered a positive and inclusive environment that increased user engagement and retention.</li>
+              </ul>
+              <span class="highlight">0 → 40k+ active members</span>
+            </div>
+          </article>
+          <article class="job">
+            <div><div class="when">2018 – 2019</div><div class="org">Possum Labs</div></div>
+            <div class="card">
+              <h3>Community Lead</h3>
+              <ul>
+                <li>Helped build Possum Labs community from the start with an amazing team.</li>
+                <li>Created systems and processes that improved community growth and engagement.</li>
+                <li>Supported developers and users, ensuring their feedback was heard and valued.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
     <section class="block" id="work">
       <div class="wrap">
         <div class="section-head">
-          <div><p class="kicker">Featured work</p><h2>Products I've designed, built and shipped.</h2></div>
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg></span>
+          <h2 class="display">What I build</h2><span class="rule"></span>
         </div>
-
-        <article class="feature">
-          <div class="feature-copy">
-            <div class="tag-row">
-              <span class="tag hot">Nansen Meridian Buildathon 2026</span>
-              <span class="tag">Live</span>
-              <span class="tag">Open source</span>
-            </div>
-            <h3>Veritas</h3>
+        <article class="build">
+          <div class="build-copy">
+            <div class="pill-row"><span class="pill hot">Nansen Meridian Buildathon 2026</span><span class="pill">Live</span><span class="pill">Open source</span></div>
+            <h3 class="display">Veritas</h3>
             <p class="tagline">Know who's behind every token.</p>
             <p>A token with 800 holders can really be a handful of insiders spread across hundreds of wallets. Veritas finds the wallets secretly run by the same owner and turns a token's real holder structure into one explainable trust score, built entirely on Nansen's on-chain data.</p>
-            <ul class="checks">
+            <ul>
               <li>Detects hidden wallet clusters (bundles) from shared funders and linked wallets</li>
               <li>0–100 trust score where every point is explained by on-chain evidence</li>
-              <li>Live 3D holder map that forms clusters as the scan runs</li>
-              <li>Meme Radar, market lists for 12 chains, and 24h buyers &amp; sellers</li>
+              <li>Live 3D holder map, Meme Radar and market lists for 12 chains</li>
+              <li>24h buyers &amp; sellers, net flows, and a public report with an embeddable badge</li>
               <li>Spot the Insider: a game played on real wallets</li>
             </ul>
             <p class="stack-line">Node.js · Nansen API · Server-Sent Events · 3D force graph · Vercel</p>
             <div class="actions">
-              <a class="btn btn-primary" href="https://veritas-three-omega.vercel.app" target="_blank" rel="noopener">Open Veritas ↗</a>
+              <a class="btn btn-red" href="https://veritas-three-omega.vercel.app" target="_blank" rel="noopener">Open Veritas ↗</a>
               <a class="btn" href="https://github.com/softalpha0/veritas" target="_blank" rel="noopener">View code</a>
             </div>
           </div>
-          <figure class="feature-art" aria-label="Illustration of the Veritas clustering idea">
+          <figure class="build-art" aria-label="Illustration of the Veritas clustering idea">
             <svg viewBox="0 0 440 340" role="img">
               <title>Wallets that share a funder resolve into one owner</title>
-              <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e66767" stop-opacity=".2"/><stop offset="1" stop-color="#e66767" stop-opacity="0"/></radialGradient></defs>
-              <rect x="1" y="1" width="438" height="338" rx="12" fill="#111418" stroke="#23272d"/>
-              <g fill="#9aa3ae" opacity=".5"><circle cx="44" cy="52" r="4"/><circle cx="92" cy="286" r="3"/><circle cx="388" cy="64" r="5"/><circle cx="402" cy="262" r="3"/><circle cx="60" cy="176" r="3"/><circle cx="364" cy="176" r="4"/><circle cx="150" cy="40" r="3"/><circle cx="300" cy="300" r="4"/><circle cx="36" cy="236" r="5"/><circle cx="416" cy="130" r="3"/></g>
+              <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e02301" stop-opacity=".28"/><stop offset="1" stop-color="#e02301" stop-opacity="0"/></radialGradient></defs>
+              <rect x="1" y="1" width="438" height="338" rx="12" fill="#101010" stroke="#262626"/>
+              <g fill="#8a8a8a" opacity=".5"><circle cx="44" cy="52" r="4"/><circle cx="92" cy="286" r="3"/><circle cx="388" cy="64" r="5"/><circle cx="402" cy="262" r="3"/><circle cx="60" cy="176" r="3"/><circle cx="364" cy="176" r="4"/><circle cx="150" cy="40" r="3"/><circle cx="300" cy="300" r="4"/><circle cx="36" cy="236" r="5"/><circle cx="416" cy="130" r="3"/></g>
               <circle cx="220" cy="170" r="120" fill="url(#glow)"/>
-              <g stroke="#e66767" stroke-opacity=".55" stroke-width="1.2"><line x1="220" y1="170" x2="160" y2="110"/><line x1="220" y1="170" x2="286" y2="104"/><line x1="220" y1="170" x2="300" y2="196"/><line x1="220" y1="170" x2="250" y2="250"/><line x1="220" y1="170" x2="160" y2="238"/><line x1="220" y1="170" x2="136" y2="176"/></g>
-              <g fill="#e66767"><circle cx="160" cy="110" r="10"/><circle cx="286" cy="104" r="8"/><circle cx="300" cy="196" r="11"/><circle cx="250" cy="250" r="9"/><circle cx="160" cy="238" r="7"/><circle cx="136" cy="176" r="9"/></g>
-              <circle cx="220" cy="170" r="7" fill="#ff9b9b" stroke="#111418" stroke-width="2"/>
-              <text x="232" y="166" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#8b9098">Shared first funder</text>
-              <g font-family="JetBrains Mono, monospace" font-size="10.5"><rect x="18" y="296" width="206" height="28" rx="6" fill="#181b1f" stroke="#2f343b"/><text x="30" y="314" fill="#ececee">6 wallets → 1 owner</text></g>
+              <g stroke="#e02301" stroke-opacity=".7" stroke-width="1.3"><line x1="220" y1="170" x2="160" y2="110"/><line x1="220" y1="170" x2="286" y2="104"/><line x1="220" y1="170" x2="300" y2="196"/><line x1="220" y1="170" x2="250" y2="250"/><line x1="220" y1="170" x2="160" y2="238"/><line x1="220" y1="170" x2="136" y2="176"/></g>
+              <g fill="#e02301"><circle cx="160" cy="110" r="10"/><circle cx="286" cy="104" r="8"/><circle cx="300" cy="196" r="11"/><circle cx="250" cy="250" r="9"/><circle cx="160" cy="238" r="7"/><circle cx="136" cy="176" r="9"/></g>
+              <circle cx="220" cy="170" r="7" fill="#fff" stroke="#101010" stroke-width="2"/>
+              <text x="232" y="166" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#9a9a9a">Shared first funder</text>
+              <g font-family="JetBrains Mono, monospace" font-size="10.5"><rect x="18" y="296" width="206" height="28" rx="6" fill="#1b1b1b" stroke="#333"/><text x="30" y="314" fill="#f2f2f2">6 wallets → 1 owner</text></g>
             </svg>
             <figcaption>Illustration of the core idea. The live app maps every real holder from Nansen.</figcaption>
           </figure>
         </article>
-
-        <div class="capabilities">
-          <div><b>Data engineering</b><span>Rate-limited, cached API client with retries and an auditable call log.</span></div>
-          <div><b>Analysis</b><span>Union-find wallet clustering and a bounded, explainable scoring model.</span></div>
-          <div><b>Product &amp; UI</b><span>Streaming scans, 3D visualisation, dashboards and a playable game.</span></div>
-        </div>
-
-        <div class="more">
+        <div class="github-more">
           <p>More experiments, hackathon builds and open-source work live on my GitHub.</p>
           <a class="btn" href="https://github.com/softalpha0" target="_blank" rel="noopener">github.com/softalpha0 ↗</a>
         </div>
       </div>
     </section>
 
-    <section class="block" id="stack">
+    <section class="block" id="expertise">
       <div class="wrap">
-        <div class="section-head"><div><p class="kicker">Stack</p><h2>What I work with.</h2></div></div>
-        <div class="stack-grid">
-          <div class="stack-card"><h3>Languages</h3><ul class="chips"><li>Rust</li><li>Python</li><li>JavaScript</li><li>Solidity</li></ul></div>
-          <div class="stack-card"><h3>Web</h3><ul class="chips"><li>Node.js</li><li>HTML &amp; CSS</li><li>REST APIs</li><li>Data viz</li></ul></div>
-          <div class="stack-card"><h3>Web3</h3><ul class="chips"><li>Smart contracts</li><li>dApps</li><li>On-chain analytics</li><li>Nansen API</li></ul></div>
-          <div class="stack-card"><h3>Shipping</h3><ul class="chips"><li>Git &amp; GitHub</li><li>Vercel</li><li>Testing</li></ul></div>
+        <div class="section-head">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5.2 4.7 1.5 7L12 17.5 5.7 21l1.5-7L2 9.3l7-.8z"/></svg></span>
+          <h2 class="display">Expertise</h2><span class="rule"></span>
+        </div>
+        <div class="skills">
+          <div class="skill-card red">
+            <h3>Community &amp; DevRel</h3>
+            <ul class="chips"><li>Community Building</li><li>Developer Relations</li><li>Event Hosting</li><li>Content Creation</li><li>Technical Explanation</li></ul>
+          </div>
+          <div class="skill-card">
+            <h3>Leadership</h3>
+            <ul class="chips"><li>Management</li><li>Leadership</li><li>Campaigns &amp; AMAs</li><li>Workshops</li></ul>
+          </div>
+          <div class="skill-card">
+            <h3>Building</h3>
+            <ul class="chips"><li>Rust</li><li>Python</li><li>JavaScript</li><li>Solidity</li><li>Node.js</li><li>On-chain analytics</li></ul>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="block" id="about">
-      <div class="wrap about">
-        <div>
-          <p class="kicker">About</p>
-          <p>I'm a fullstack developer who loves turning messy data into something people can understand at a glance. Most of my work sits where web development meets crypto: smart contracts, dApps and the tools around them.</p>
-          <p>I like shipping real things fast, then polishing them until they feel like products. I also enjoy helping other people learn to build.</p>
+    <section class="block" id="education">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></svg></span>
+          <h2 class="display">Education</h2><span class="rule"></span>
         </div>
-        <div class="off-hours">
-          <h3>Off the clock</h3>
-          <ul>
-            <li><span class="ico" aria-hidden="true">⚡</span>Vibe coding side projects</li>
-            <li><span class="ico" aria-hidden="true">📚</span>Reading novels</li>
-            <li><span class="ico" aria-hidden="true">🎮</span>Playing games</li>
-            <li><span class="ico" aria-hidden="true">🍥</span>Watching anime</li>
-          </ul>
+        <div class="edu-grid">
+          <div class="edu">
+            <div class="edu-item">
+              <div class="when">2020 – 2023</div>
+              <div><h3>Bachelor of Computer Science</h3><div class="school">University of Technology</div><p>Focused on software development, data structures, algorithms, and web technologies.</p></div>
+            </div>
+            <div class="edu-item">
+              <div class="when">2016 – 2020</div>
+              <div><h3>Diploma in Information Technology</h3><div class="school">University of Technology</div><p>Studied programming, databases, networking, and system analysis.</p></div>
+            </div>
+          </div>
+          <div>
+            <div class="side-card">
+              <h3>Languages</h3>
+              <div class="lang"><div class="row"><span>English</span></div><div class="bar"><div style="width: 78%"></div></div></div>
+              <div class="lang"><div class="row"><span>French</span></div><div class="bar"><div style="width: 52%"></div></div></div>
+            </div>
+            <div class="side-card">
+              <h3>Off the clock</h3>
+              <ul class="hobbies">
+                <li><span class="ico" aria-hidden="true">⚡</span>Vibe coding side projects</li>
+                <li><span class="ico" aria-hidden="true">📚</span>Reading novels</li>
+                <li><span class="ico" aria-hidden="true">🎮</span>Playing games</li>
+                <li><span class="ico" aria-hidden="true">🍥</span>Watching anime</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="contact" id="contact">
-      <div class="wrap">
-        <p class="kicker">Contact</p>
-        <h2>Let's build something.</h2>
-        <p>Have a project, a hackathon idea or a question about on-chain data? I'd love to hear about it.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="https://github.com/softalpha0" target="_blank" rel="noopener">Find me on GitHub</a>
-          <a class="btn" href="https://veritas-three-omega.vercel.app" target="_blank" rel="noopener">Try Veritas</a>
+      <div class="wrap contact-grid">
+        <div>
+          <h2 class="display">Let's lock in.</h2>
+          <p>Growing a community, launching a developer program, or need someone who can explain the tech and build with it? Let's talk.</p>
+          <div class="actions">
+            <a class="btn btn-white" href="mailto:softonchain@gmail.com">Email me</a>
+            <a class="btn" href="assets/Softalpha-CV.pdf" download>Download CV</a>
+          </div>
         </div>
+        <ul class="links">
+          <li><a href="mailto:softonchain@gmail.com"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span><span><b>Email</b><span>softonchain@gmail.com</span></span></a></li>
+          <li><a href="https://x.com/TweetBysoft" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.2L23 22h-6.6l-5.2-6.8L5.3 22H2.2l7.7-8.8L1.8 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg></span><span><b>X / Twitter</b><span>@TweetBysoft</span></span></a></li>
+          <li><a href="https://t.me/softalphax" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3l-3.3 15.6c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.2-8.3c.4-.4-.1-.6-.6-.2L6 13.4 1.1 11.9c-1.1-.3-1.1-1.1.2-1.6l19.2-7.4c.9-.3 1.7.2 1.4 1.4z"/></svg></span><span><b>Telegram</b><span>@softalphax</span></span></a></li>
+          <li><div><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0015.4 3l-.6 1.2a18.4 18.4 0 00-5.6 0L8.6 3a19.7 19.7 0 00-4.9 1.4C.6 9 .2 13.6.4 18.1a19.9 19.9 0 006 3l1.3-2a13 13 0 01-2-1l.5-.4a14.2 14.2 0 0012.2 0l.5.4a13 13 0 01-2 1l1.3 2a19.8 19.8 0 006-3c.4-5.2-.7-9.7-3.9-13.7zM8.7 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm6.6 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg></span><span><b>Discord</b><span>Softalpha</span></span></div></li>
+          <li><a href="https://github.com/softalpha0" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span><span><b>GitHub</b><span>softalpha0</span></span></a></li>
+        </ul>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="wrap">
-      <span>© <span id="year">2026</span> BenSoftie (Softalpha)</span>
-      <span>Designed and built by BenSoftie.</span>
+      <span>© <span id="year">2026</span> Softalpha</span>
+      <span>References available upon request.</span>
     </div>
   </footer>
   <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
