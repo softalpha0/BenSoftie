@@ -1,0 +1,9 @@
+{
+  "name": "palm-pals",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "start": "npx --yes serve ."
+  }
+}

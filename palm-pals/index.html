@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Palm Pals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Lexend:wght@400;600&display=swap">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+        "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #1c1524; --panel: #271e31; --ink: #f1eaf7; --muted: #b3a6c0; --line: #3d3149;
+      --accent: #f2b53a; --teal: #4cc1b8; --danger: #ff8a9d;
+      --f-display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+      --f-body: "Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--f-body); overflow: hidden; }
+    [hidden] { display: none !important; }
+    button {
+      font: 600 1rem var(--f-body); border: 0; border-radius: 999px; padding: 14px 24px; cursor: pointer;
+      background: var(--accent); color: #2a1f35;
+    }
+    button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+
+    #landing { height: 100%; display: grid; place-items: center; padding: 24px 16px; overflow: auto; }
+    .card { max-width: 560px; display: grid; gap: 18px; }
+    h1 { font: 400 clamp(3rem, 12vw, 5rem)/1 var(--f-display); margin: 0; color: var(--accent); }
+    .lede { font-size: 1.15rem; color: var(--muted); margin: 0; }
+    .lede b { color: var(--ink); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .note { font-size: .9rem; color: var(--muted); margin: 0; }
+    #status { color: var(--danger); margin: 0; }
+    .poses { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: .95rem; }
+    .poses li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding: 6px 0; }
+    .poses span:last-child { color: var(--teal); font-weight: 600; white-space: nowrap; }
+
+    #stage { position: fixed; inset: 0; background: #000; }
+    #video, #gl { position: absolute; }
+    #video { transform: scaleX(-1); object-fit: cover; }
+
+    #hud { position: fixed; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; }
+    #hud > * { pointer-events: auto; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    #names { font: 400 1.4rem var(--f-display); text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+    #guide { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    #guide span {
+      background: rgba(39,30,49,.82); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: .85rem; color: var(--muted);
+    }
+    #guide span b { color: var(--ink); font-weight: 600; }
+    #guide span.on { background: var(--accent); color: #2a1f35; border-color: var(--accent); }
+    #guide span.on b { color: #2a1f35; }
+    #paused { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font: 400 2.4rem var(--f-display); color: var(--accent); text-shadow: 0 3px 12px rgba(0,0,0,.7); pointer-events: none; }
+    #debug { position: fixed; left: 16px; bottom: 80px; margin: 0; font: .75rem/1.5 ui-monospace, Menlo, monospace; background: rgba(0,0,0,.6); padding: 8px 10px; border-radius: 8px; white-space: pre-wrap; max-width: calc(100% - 32px); }
+  </style>
+</head>
+<body>
+  <main id="landing">
+    <div class="card">
+      <h1>Palm Pals</h1>
+      <p class="lede">Your hand isn't the controller. <b>It's the star.</b> Make a pose and a felt puppet appears on your real hand.</p>
+      <ul class="poses" aria-label="Poses">
+        <li><span>Sock puppet: fingers on top, thumb below. Open and close to talk</span><span>Grumble</span></li>
+        <li><span>Let your hand hang down, fingers loose</span><span>Chef Ink</span></li>
+        <li><span>Index and middle finger out, like two legs</span><span>Courier Crab</span></li>
+        <li><span>Fingers spread wide, pointing up</span><span>The Five</span></li>
+        <li><span>Make a fist</span><span>Pause</span></li>
+      </ul>
+      <div class="actions">
+        <button id="start-webcam" type="button">Try with webcam</button>
+        <button id="start-xr" class="ghost" type="button">Enter passthrough (Quest)</button>
+        <button id="voice" class="ghost" type="button" aria-pressed="false">Turn on voice</button>
+      </div>
+      <p class="note" id="xr-note">Checking for a headset…</p>
+      <p class="note">Voice is optional: when it's on, the puppets move their mouths when you talk. Nothing is recorded or sent anywhere.</p>
+      <p id="status" role="status" hidden></p>
+    </div>
+  </main>
+
+  <div id="stage" hidden>
+    <video id="video" playsinline muted></video>
+  </div>
+
+  <div id="hud" hidden>
+    <div class="top">
+      <div id="names" aria-live="polite">Hold a hand up to the camera</div>
+      <button id="back" class="ghost" type="button">Back</button>
+    </div>
+    <div id="guide">
+      <span data-pose="dragon"><b>Sock puppet</b> Grumble</span>
+      <span data-pose="octopus"><b>Hang down</b> Chef Ink</span>
+      <span data-pose="crab"><b>Two fingers</b> Courier Crab</span>
+      <span data-pose="five"><b>Spread</b> The Five</span>
+      <span data-pose="fist"><b>Fist</b> Pause</span>
+    </div>
+  </div>
+  <div id="paused" hidden>Paused</div>
+  <pre id="debug" hidden></pre>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Palm Pals Gallery</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Lexend:wght@400;600&display=swap">
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+  <style>
+    :root { --bg: #1c1524; --panel: #271e31; --ink: #f1eaf7; --muted: #b3a6c0; --line: #3d3149; --accent: #f2b53a; --teal: #4cc1b8; color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Lexend", system-ui, sans-serif; padding: 24px 16px 40px; }
+    header { max-width: 1200px; margin: 0 auto 20px; display: grid; gap: 6px; }
+    h1 { font: 400 2.6rem/1 "Bagel Fat One", system-ui, sans-serif; color: var(--accent); margin: 0; }
+    header p { margin: 0; color: var(--muted); max-width: 70ch; }
+    header a { color: var(--teal); }
+    .grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+    canvas { display: block; width: 100%; aspect-ratio: 3 / 4; }
+    figcaption { padding: 10px 14px 14px; display: grid; gap: 2px; }
+    figcaption b { font: 400 1.25rem "Bagel Fat One", system-ui, sans-serif; }
+    figcaption span { color: var(--muted); font-size: .88rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Palm Pals gallery</h1>
+    <p>Each character on a stand-in hand (the pale shape), animated the way it moves when you play. In the real app the costume sits on your actual hand. <a href="./">Try it with your webcam</a>.</p>
+  </header>
+  <div class="grid" id="grid"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { DEMO_POSES } from './demo-hands.js';
+    import { measure } from './hands.js';
+    import { Puppet, Limb, NAMES } from './puppets.js';
+
+    const CARDS = [
+      { pose: 'dragon', how: 'Sock puppet. Thumb opens the mouth.', anim: (t) => ({ thumbGap: 0.02 + 0.45 * (0.5 + 0.5 * Math.sin(t * 3)) }) },
+      { pose: 'octopus', how: 'Hand hanging down. Fingers are tentacles.', anim: (t) => ({ direction: -Math.PI / 2 + 0.15 * Math.sin(t * 1.5), spread: 0.14 + 0.06 * Math.sin(t * 4) }) },
+      { pose: 'crab', how: 'Two fingers walk. Thumb is the claw.', anim: (t) => ({ direction: -Math.PI / 2 + 0.2 + 0.25 * Math.sin(t * 4) }) },
+      { pose: 'five', how: 'Fingers spread. A band member on each tip.', anim: (t) => ({ spread: 0.3 + 0.05 * Math.sin(t * 2) }) },
+      { pose: 'fist', how: 'Fist. The character curls up and the show pauses.', anim: () => ({}) },
+    ];
+
+    const skin = new THREE.MeshStandardMaterial({ color: '#e3c2a6', roughness: 0.8, transparent: true, opacity: 0.55 });
+    const CHAINS = [[0, 1, 2, 3, 4], [0, 5, 6, 7, 8], [5, 9, 10, 11, 12], [9, 13, 14, 15, 16], [13, 17, 18, 19, 20], [0, 17]];
+
+    const cards = CARDS.map((card) => {
+      const fig = document.createElement('figure');
+      const canvas = document.createElement('canvas');
+      fig.append(canvas);
+      fig.insertAdjacentHTML('beforeend', `<figcaption><b>${NAMES[card.pose]}</b><span>${card.how}</span></figcaption>`);
+      document.getElementById('grid').append(fig);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7aa8, 1.8));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+      sun.position.set(0.6, 1, 1.2);
+      scene.add(sun);
+      const camera = new THREE.PerspectiveCamera(35, 3 / 4, 0.1, 100);
+      const bones = [];
+      CHAINS.forEach((c) => { for (let i = 0; i < c.length - 1; i++) { const b = new Limb(skin); bones.push([b, c[i], c[i + 1]]); scene.add(b); } });
+      const puppet = new Puppet(scene);
+      const lastPose = card.pose === 'fist' ? 'dragon' : card.pose;
+      return { card, canvas, renderer, scene, camera, bones, puppet, lastPose, center: null };
+    });
+
+    const clock = new THREE.Clock();
+    function frame() {
+      const dt = Math.min(clock.getDelta(), 0.1);
+      const t = clock.elapsedTime;
+      for (const c of cards) {
+        const w = c.canvas.clientWidth, h = c.canvas.clientHeight;
+        if (c.canvas.width !== Math.round(w * c.renderer.getPixelRatio())) { c.renderer.setSize(w, h, false); c.camera.aspect = w / h; c.camera.updateProjectionMatrix(); }
+        // Turn the hand a little so the costume reads as 3D.
+        const turn = 0.45 * Math.sin(t * 0.6);
+        const flat = DEMO_POSES[c.card.pose](c.card.anim(t));
+        const pts = flat.map((q) => ({ x: q.x * Math.cos(turn) + q.z * Math.sin(turn), y: q.y, z: -q.x * Math.sin(turn) + q.z * Math.cos(turn) }));
+        const center = pts.reduce((a, q) => a.add(new THREE.Vector3(q.x, q.y, q.z)), new THREE.Vector3()).multiplyScalar(1 / pts.length);
+        c.center = c.center ? c.center.lerp(center, 0.08) : center;
+        c.camera.position.set(c.center.x, c.center.y + 0.2, c.center.z + 7.5);
+        c.camera.lookAt(c.center);
+        const V = pts.map((q) => new THREE.Vector3(q.x, q.y, q.z));
+        c.bones.forEach(([b, i, j]) => b.set(V[i], V[j], 0.1, 0.1));
+        // The fist card shows Grumble curling up.
+        if (c.card.pose === 'fist') c.puppet.lastCharacter = 'dragon';
+        c.puppet.update(pts, c.card.pose, { open: measure(pts).mouth, talk: 0.5 + 0.5 * Math.sin(t * 5), viewer: c.camera.position, t, dt });
+        c.renderer.render(c.scene, c.camera);
+      }
+      requestAnimationFrame(frame);
+    }
+    frame();
+  </script>
+</body>
+</html>
