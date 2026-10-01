@@ -1,100 +1,199 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { PoseTracker, smooth, XR_JOINTS } from '../palm-pals/hands.js';
 import { readGesture, COMMANDS } from './gestures.js';
-import { SwarmGame } from './swarm.js';
 import { DEMO_GESTURES, placeTip } from './demo-gestures.js';
+import { Swarm } from './drones.js';
+import { Show } from './show.js';
+import { Sound } from './sound.js';
+import { buildWorld, buildPassthroughLights, HoloHand } from './world.js';
 
 const MEDIAPIPE = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1';
 const HAND_MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const params = new URLSearchParams(location.search);
+const CAPTURE = params.has('capture');
 
 const $ = (id) => document.getElementById(id);
 const ui = {
-  landing: $('landing'), stage: $('stage'), video: $('video'), status: $('status'),
-  webcamBtn: $('start-webcam'), xrBtn: $('start-xr'), demoBtn: $('start-demo'), xrNote: $('xr-note'),
-  hud: $('hud'), command: $('command'), score: $('score'), time: $('time'), best: $('best'),
-  guide: $('guide'), over: $('over'), overScore: $('over-score'), back: $('back'),
+  landing: $('landing'), status: $('status'), video: $('video'),
+  demoBtn: $('watch'), webcamBtn: $('webcam'), xrBtn: $('xr'), xrNote: $('xr-note'),
+  hud: $('hud'), act: $('act'), progress: $('progress'), bar: $('bar'), clock: $('clock'),
+  command: $('command'), guide: $('guide'), title: $('title'), titleName: $('title-name'), titleSub: $('title-sub'),
+  toast: $('toast'), menu: $('menu'), soundBtn: $('sound'),
 };
 
-// ---------- shared three.js setup ----------
+// ---------- renderer, camera, effects ----------
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: CAPTURE });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x000000, 0);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.body.prepend(renderer.domElement);
 renderer.domElement.id = 'gl';
-ui.stage.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.add(new THREE.HemisphereLight(0xffffff, 0x445066, 2));
-const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-sun.position.set(0.5, 1, 1);
-scene.add(sun);
+const camera = new THREE.PerspectiveCamera(55, 1, 0.01, 60);
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.75, 0.5, 0.32);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const sound = new Sound();
+let soundOn = false;
 const clock = new THREE.Clock();
 
-let game = null;
+// ---------- layouts: the same game on a screen or in a headset ----------
+
+const SCREEN = {
+  center: new THREE.Vector3(0, 0.07, -0.7), size: 0.2, reach: 2.6,
+  bounds: { min: new THREE.Vector3(-0.62, -0.36, -0.8), max: new THREE.Vector3(0.62, 0.33, -0.6) }, plane: -0.7,
+};
+// In the headset: in front of where your head started, within arm's reach.
+const HEADSET = {
+  center: new THREE.Vector3(0, -0.08, -0.62), size: 0.2, reach: 4,
+  bounds: { min: new THREE.Vector3(-0.5, -0.45, -1.0), max: new THREE.Vector3(0.5, 0.25, -0.3) }, plane: null,
+};
+
+let root = null, swarm = null, show = null, layout = SCREEN;
+const holo = new HoloHand();
+scene.add(holo);
+const pointer = new THREE.Mesh(new THREE.RingGeometry(0.016, 0.02, 40), new THREE.MeshBasicMaterial({ color: '#4cd6ff', transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
+scene.add(pointer);
+
+function newGame(l) {
+  if (root) scene.remove(root);
+  layout = l;
+  root = new THREE.Group();
+  scene.add(root);
+  swarm = new Swarm(root, { count: 24, unit: 0.008, bounds: l.bounds, plane: l.plane, reach: l.reach });
+  show = new Show(root, { center: l.center, size: l.size, snap: 0.03 });
+  show.on(onShowEvent);
+  show.start();
+}
+
+let world = buildWorld(scene);
+
+// ---------- show events: titles, toasts and sound ----------
+
+const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
+let toastTimer = 0, titleTimer = 0;
+function onShowEvent(type, d) {
+  if (type === 'act') {
+    ui.titleName.textContent = d.name;
+    ui.titleSub.textContent = `Act ${ROMAN[d.index]} · ${d.slots} drones`;
+    ui.title.style.setProperty('--c', d.color);
+    ui.title.hidden = false;
+    ui.title.classList.remove('show');
+    void ui.title.offsetWidth;
+    ui.title.classList.add('show');
+    titleTimer = 2.6;
+    if (soundOn) sound.whoosh();
+  } else if (type === 'lock') {
+    if (soundOn) sound.lock(d.filled - 1);
+  } else if (type === 'complete') {
+    ui.toast.textContent = `${d.name} complete in ${d.seconds.toFixed(1)}s`;
+    ui.toast.hidden = false;
+    toastTimer = 3.5;
+    if (soundOn) sound.complete(d.index);
+  } else if (type === 'firework') {
+    if (soundOn) sound.firework();
+  }
+}
+
+// ---------- the conductor: hand in, drones out ----------
+
+// Calling the swarm home or freezing it doesn't paint; aiming it does.
+const PAINTS = new Set(['point', 'carry', 'orbit']);
 const tracker = new PoseTracker(4);
 tracker.pose = 'gather';
 let smoothed = null;
 
-// Picks the hand that conducts: the right hand if there are two.
-function conduct(hands, dt) {
-  const t = clock.elapsedTime;
+function conduct(hands, dt, t) {
   const hand = hands.find((h) => h.key === 'Right') ?? hands[0];
   let reading = null;
   if (hand) {
     smoothed = smooth(smoothed, hand.points, 0.6);
     reading = readGesture(smoothed);
     tracker.update(reading.gesture);
+    if (inputMode !== 'xr') holo.set(smoothed); else holo.visible = false;
   } else {
     smoothed = null;
+    holo.visible = false;
   }
-  game.update(tracker.pose, reading, t, dt);
-  renderHud(Boolean(hand));
+  const command = reading ? tracker.pose : 'hold';
+  const goals = new Map();
+  const free = swarm.free;
+  swarm.commandGoals(command, reading, t).forEach((g, i) => goals.set(free[i], g));
+  show.lockedGoals(goals);
+  show.update(dt, t, swarm, PAINTS.has(command));
+  const color = new THREE.Color(COMMANDS[command].color);
+  const speed = swarm.update(goals, dt, t, color);
+  if (soundOn) sound.swarm(speed);
+
+  pointer.visible = Boolean(swarm.pointTarget);
+  if (swarm.pointTarget) {
+    pointer.position.copy(swarm.pointTarget);
+    pointer.lookAt(inputMode === 'xr' ? renderer.xr.getCamera().position : camera.position);
+    pointer.scale.setScalar(1 + 0.15 * Math.sin(t * 8));
+  }
+  renderHud(Boolean(hand), command, dt);
 }
 
-function renderHud(handVisible) {
-  const cmd = COMMANDS[tracker.pose];
+function renderHud(handVisible, command, dt) {
+  const act = show.current;
+  ui.act.textContent = `Act ${ROMAN[show.act]} · ${act.name}`;
+  ui.act.style.color = act.color;
+  ui.progress.textContent = `${show.filled} / ${show.slots.length}`;
+  ui.bar.style.width = `${(100 * show.filled) / Math.max(1, show.slots.length)}%`;
+  ui.bar.style.background = act.color;
+  ui.clock.textContent = `${show.actTime.toFixed(1)}s`;
+  const cmd = COMMANDS[command];
   ui.command.textContent = handVisible ? cmd.label : 'Show your hand';
   ui.command.style.color = handVisible ? cmd.color : '';
-  ui.score.textContent = game.score;
-  ui.time.textContent = Math.ceil(game.timeLeft);
-  ui.best.textContent = game.best;
-  for (const chip of ui.guide.querySelectorAll('[data-cmd]')) chip.classList.toggle('on', handVisible && chip.dataset.cmd === tracker.pose);
-  ui.over.hidden = !game.over;
-  ui.overScore.textContent = game.score;
+  for (const chip of ui.guide.querySelectorAll('[data-cmd]')) chip.classList.toggle('on', handVisible && chip.dataset.cmd === command);
+  if (toastTimer > 0 && (toastTimer -= dt) <= 0) ui.toast.hidden = true;
+  if (titleTimer > 0 && (titleTimer -= dt) <= 0) ui.title.hidden = true;
 }
 
-function setStatus(msg) { ui.status.textContent = msg; ui.status.hidden = !msg; }
-ui.back.addEventListener('click', () => { location.href = location.pathname; });
+// ---------- input: scripted demo hand ----------
 
-// ---------- flat screen modes (webcam and demo) ----------
-
-const flatCam = new THREE.OrthographicCamera(-1, 1, 0.5, -0.5, 0.01, 100);
-flatCam.position.set(0, 0, 10);
-let aspect = 16 / 9;
-
-function fitStage(vw, vh) {
-  aspect = vw / vh;
-  const k = Math.min(window.innerWidth / vw, window.innerHeight / vh);
-  const w = Math.round(vw * k), h = Math.round(vh * k);
-  for (const el of [ui.video, renderer.domElement]) {
-    Object.assign(el.style, { width: `${w}px`, height: `${h}px`, left: `${(window.innerWidth - w) / 2}px`, top: `${(window.innerHeight - h) / 2}px` });
+let demoAim = null;
+function demoHands(t, dt) {
+  const size = 0.1, z = layout.plane;
+  const lift = (pts) => pts.map((q) => ({ x: q.x, y: q.y, z: q.z + z }));
+  const rest = { x: 0.06 * Math.sin(t * 0.8), y: -0.4, z: 0 };
+  const next = show.slots.find((s) => !s.drone);
+  if (show.state !== 'playing' || show.actTime < 1.4 || !next) {
+    demoAim = null;
+    return lift(DEMO_GESTURES.gather({ size, origin: rest, spread: 0.22 }));
   }
-  renderer.setSize(w, h, false);
-  flatCam.left = -aspect / 2; flatCam.right = aspect / 2;
-  flatCam.updateProjectionMatrix();
+  demoAim = demoAim ? demoAim.lerp(next.pos, Math.min(1, dt * 5)) : next.pos.clone();
+  // Act III shows off the pinch: drag the swarm along the curve.
+  if (show.act === 2) return lift(placeTip(DEMO_GESTURES.carry({ size }), { x: demoAim.x, y: demoAim.y - 0.01, z: 0 }));
+  const pivot = { x: 0.05 * Math.sin(t * 0.5), y: -0.42 };
+  const direction = Math.atan2(demoAim.y - pivot.y, demoAim.x - pivot.x);
+  const pts = DEMO_GESTURES.point({ size, direction });
+  const reach = layout.reach * size;
+  return lift(placeTip(pts, { x: demoAim.x - Math.cos(direction) * reach, y: demoAim.y - Math.sin(direction) * reach, z: 0 }));
 }
 
-function startFlatGame() {
-  game = new SwarmGame(scene, {
-    unit: 0.0105, flat: true, reach: 3, orbitAxis: new THREE.Vector3(0, 0, 1),
-    arena: { min: new THREE.Vector3(-aspect / 2 + 0.1, -0.3, 0), max: new THREE.Vector3(aspect / 2 - 0.1, 0.27, 0) },
-  });
-  ui.landing.hidden = true;
-  ui.stage.hidden = false;
-  ui.hud.hidden = false;
-}
+// ---------- input: webcam ----------
 
-let landmarker = null;
+let landmarker = null, lastVideoTime = -1, lastHands = [];
 async function loadLandmarker() {
   const { HandLandmarker, FilesetResolver } = await import(`${MEDIAPIPE}/vision_bundle.mjs`);
   const files = await FilesetResolver.forVisionTasks(`${MEDIAPIPE}/wasm`);
@@ -102,128 +201,88 @@ async function loadLandmarker() {
   try { return await HandLandmarker.createFromOptions(files, options('GPU')); }
   catch { return await HandLandmarker.createFromOptions(files, options('CPU')); }
 }
+function webcamHands() {
+  if (ui.video.currentTime === lastVideoTime) return lastHands;
+  lastVideoTime = ui.video.currentTime;
+  const res = landmarker.detectForVideo(ui.video, performance.now());
+  // Your hand is placed on the stage plane, mirrored like a selfie.
+  const H = 2 * Math.abs(layout.plane) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const va = ui.video.videoWidth / ui.video.videoHeight;
+  lastHands = res.landmarks.map((lm, i) => ({
+    key: res.handedness[i]?.[0]?.categoryName === 'Left' ? 'Right' : 'Left',
+    points: lm.map((q) => ({ x: (0.5 - q.x) * H * va, y: (0.5 - q.y) * H, z: layout.plane - q.z * H * va })),
+  }));
+  return lastHands;
+}
+
+// ---------- main loop (screen) ----------
+
+let inputMode = 'demo';
+function frame(dtOverride) {
+  const dt = dtOverride ?? Math.min(clock.getDelta(), 0.05);
+  const t = (frame.t = (frame.t ?? 0) + dt);
+  const hands = inputMode === 'webcam' && landmarker ? webcamHands()
+    : inputMode === 'demo' ? [{ key: 'Right', points: demoHands(t, dt) }] : [];
+  conduct(hands, dt, t);
+  world.update(t);
+  // Slow cinematic drift of the camera.
+  camera.position.set(0.05 * Math.sin(t * 0.21), 0.025 * Math.sin(t * 0.17), 0);
+  camera.lookAt(0, layout.center.y * 0.5, layout.center.z);
+  composer.render(dt);
+}
+
+newGame(SCREEN);
+if (CAPTURE) {
+  ui.landing.hidden = true;
+  ui.hud.hidden = false;
+  window.__step = (dt) => frame(dt);
+} else {
+  renderer.setAnimationLoop(() => frame());
+  if (params.has('demo')) enterShow();
+}
+
+function enterShow() {
+  ui.landing.hidden = true;
+  ui.hud.hidden = false;
+}
+function enableSound() {
+  sound.start();
+  soundOn = true;
+  ui.soundBtn.textContent = 'Sound on';
+  ui.soundBtn.setAttribute('aria-pressed', 'true');
+}
+function setStatus(msg) { ui.status.textContent = msg; ui.status.hidden = !msg; }
+
+ui.demoBtn.addEventListener('click', () => { enableSound(); enterShow(); });
+ui.menu.addEventListener('click', () => { ui.landing.hidden = false; ui.hud.hidden = true; });
+ui.soundBtn.addEventListener('click', () => {
+  if (soundOn) { soundOn = false; sound.ctx?.suspend(); ui.soundBtn.textContent = 'Sound off'; ui.soundBtn.setAttribute('aria-pressed', 'false'); }
+  else enableSound();
+});
 
 ui.webcamBtn.addEventListener('click', async () => {
+  enableSound();
   ui.webcamBtn.disabled = true;
   try {
     setStatus('Asking for your camera…');
     const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } });
     ui.video.srcObject = stream;
     await ui.video.play();
-    setStatus('Loading hand tracking (first time takes a few seconds)…');
+    setStatus('Loading hand tracking (the first time takes a few seconds)…');
     landmarker ??= await loadLandmarker();
     setStatus('');
-    const fit = () => fitStage(ui.video.videoWidth, ui.video.videoHeight);
-    fit();
-    window.addEventListener('resize', fit);
-    startFlatGame();
-    renderer.setAnimationLoop(webcamFrame);
+    ui.video.hidden = false;
+    inputMode = 'webcam';
+    newGame(SCREEN);
+    enterShow();
   } catch (err) {
-    setStatus(err.name === 'NotAllowedError'
-      ? 'Camera access was blocked. Allow the camera for this site and try again.'
-      : `Couldn't start: ${err.message}`);
+    setStatus(err.name === 'NotAllowedError' ? 'Camera access was blocked. Allow the camera for this site and try again.' : `Couldn't start: ${err.message}`);
+  } finally {
     ui.webcamBtn.disabled = false;
   }
 });
 
-let lastVideoTime = -1;
-function webcamFrame() {
-  const dt = Math.min(clock.getDelta(), 0.1);
-  if (ui.video.currentTime !== lastVideoTime) {
-    lastVideoTime = ui.video.currentTime;
-    const res = landmarker.detectForVideo(ui.video, performance.now());
-    const hands = res.landmarks.map((lm, i) => {
-      // Mirrored like a selfie; MediaPipe's z is on roughly the same scale as x.
-      const points = lm.map((q) => ({ x: (0.5 - q.x) * aspect, y: 0.5 - q.y, z: -q.z * aspect }));
-      // MediaPipe's labels assume a mirrored image; ours isn't, so swap them.
-      const label = res.handedness[i]?.[0]?.categoryName;
-      return { key: label === 'Left' ? 'Right' : 'Left', points };
-    });
-    conduct(hands, dt);
-  }
-  renderer.render(scene, flatCam);
-}
-
-// ---------- demo mode: a scripted hand, no camera needed ----------
-
-const skeleton = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#e3c2a6', transparent: true, opacity: 0.8 }));
-const BONES = [0, 1, 1, 2, 2, 3, 3, 4, 0, 5, 5, 6, 6, 7, 7, 8, 5, 9, 9, 10, 10, 11, 11, 12, 9, 13, 13, 14, 14, 15, 15, 16, 13, 17, 17, 18, 18, 19, 19, 20, 0, 17];
-
-function demoHand(t) {
-  const size = 0.12;
-  const phase = t % 18;
-  const bottom = { x: 0.15 * Math.sin(t * 0.7), y: -0.4, z: 0 };
-  if (phase < 3) return DEMO_GESTURES.gather({ size, origin: bottom });
-  if (phase < 10) {
-    // Point at the nearest beacon so the demo actually scores.
-    const goal = game.beacons.reduce((a, b) => (a.charge >= b.charge ? a : b)).position;
-    const from = { x: 0, y: -0.45 };
-    const direction = Math.atan2(goal.y - from.y, goal.x - from.x);
-    const pts = DEMO_GESTURES.point({ size, direction });
-    const aim = { x: Math.cos(direction), y: Math.sin(direction) };
-    const reachDist = 3 * size * 0.95;
-    return placeTip(pts, { x: goal.x - aim.x * reachDist, y: goal.y - aim.y * reachDist, z: 0 });
-  }
-  if (phase < 13) return DEMO_GESTURES.orbit({ size, origin: { x: -0.2, y: -0.35, z: 0 } });
-  if (phase < 16) return DEMO_GESTURES.carry({ size, origin: { x: 0.3 * Math.cos(t), y: -0.3 + 0.08 * Math.sin(t * 2), z: 0 } });
-  return DEMO_GESTURES.hold({ size, origin: bottom });
-}
-
-function startDemo() {
-  ui.video.hidden = true;
-  const fit = () => fitStage(16, 9);
-  fit();
-  window.addEventListener('resize', fit);
-  startFlatGame();
-  scene.add(skeleton);
-  renderer.setAnimationLoop(() => {
-    const dt = Math.min(clock.getDelta(), 0.1);
-    const pts = demoHand(clock.elapsedTime);
-    skeleton.geometry.setFromPoints(BONES.map((i) => new THREE.Vector3(pts[i].x, pts[i].y, 0.01)));
-    conduct([{ key: 'Right', points: pts }], dt);
-    renderer.render(scene, flatCam);
-  });
-}
-ui.demoBtn.addEventListener('click', startDemo);
-if (new URLSearchParams(location.search).has('demo')) startDemo();
-
-// ---------- Quest mode (WebXR passthrough) ----------
-
-const xrCam = new THREE.PerspectiveCamera(70, 1, 0.01, 50);
-let xrHands = [];
-let panel = null;
-
-// Floating scoreboard and gesture list, up and to the left of the play area.
-function makePanel() {
-  const c = document.createElement('canvas');
-  c.width = 768; c.height = 640;
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.36, 0.36 * 640 / 768),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true }),
-  );
-  mesh.position.set(-0.55, 0.05, -0.75);
-  mesh.lookAt(0, 0, 0);
-  mesh.userData.canvas = c;
-  return mesh;
-}
-function drawPanel() {
-  const c = panel.userData.canvas, g = c.getContext('2d');
-  g.clearRect(0, 0, c.width, c.height);
-  g.fillStyle = 'rgba(20,24,34,0.85)';
-  g.beginPath(); g.roundRect(0, 0, c.width, c.height, 40); g.fill();
-  g.fillStyle = '#f2b53a'; g.font = '700 56px system-ui, sans-serif';
-  g.fillText(game.over ? `Round over: ${game.score}` : `Beacons ${game.score}`, 40, 84);
-  g.fillStyle = '#e8ecf5'; g.font = '40px system-ui, sans-serif';
-  g.fillText(game.over ? 'Next round in a moment' : `Time ${Math.ceil(game.timeLeft)}s   Best ${game.best}`, 40, 150);
-  Object.entries(COMMANDS).forEach(([key, cmd], i) => {
-    const on = key === tracker.pose;
-    g.fillStyle = on ? cmd.color : '#9aa3b5';
-    g.font = `${on ? '700 ' : ''}40px system-ui, sans-serif`;
-    g.fillText(`${cmd.how}`, 40, 240 + i * 80);
-    g.fillText(cmd.label, 420, 240 + i * 80);
-  });
-  panel.material.map.needsUpdate = true;
-}
+// ---------- headset (WebXR passthrough) ----------
 
 async function pickXrMode() {
   if (!navigator.xr) return null;
@@ -232,56 +291,89 @@ async function pickXrMode() {
   return null;
 }
 pickXrMode().then((mode) => {
-  if (!mode) {
-    ui.xrBtn.disabled = true;
-    ui.xrNote.textContent = 'Open this page in the Meta Quest browser to play in passthrough.';
-    return;
-  }
+  if (!mode) { ui.xrBtn.disabled = true; ui.xrNote.textContent = 'To play in your room, open this page in the Meta Quest browser.'; return; }
   ui.xrBtn.dataset.mode = mode;
-  ui.xrNote.textContent = mode === 'immersive-ar' ? 'Passthrough with hand tracking.' : 'No passthrough on this device, so it opens in VR.';
+  ui.xrNote.textContent = mode === 'immersive-ar' ? 'Passthrough: the show happens in your real room.' : 'No passthrough on this device, so it opens in VR.';
 });
 
+const xrHands = [];
+const tmp = new THREE.Vector3();
 ui.xrBtn.addEventListener('click', async () => {
+  enableSound();
   const mode = ui.xrBtn.dataset.mode;
   try {
     const session = await navigator.xr.requestSession(mode, { requiredFeatures: ['hand-tracking'], optionalFeatures: ['local-floor'] });
     renderer.xr.enabled = true;
     renderer.xr.setReferenceSpaceType('local');
     await renderer.xr.setSession(session);
-    if (mode === 'immersive-vr') scene.background = new THREE.Color('#141822');
-    // Play area: in front of where your head was when you started, within reach.
-    game = new SwarmGame(scene, {
-      unit: 0.01, flat: false, reach: 5, orbitAxis: new THREE.Vector3(0, 1, 0),
-      arena: { min: new THREE.Vector3(-0.45, -0.4, -0.85), max: new THREE.Vector3(0.45, 0.1, -0.35) },
-    });
-    panel = makePanel();
-    scene.add(panel);
-    xrHands = [0, 1].map((i) => {
+    inputMode = 'xr';
+    // Passthrough replaces the night city.
+    scene.clear();
+    scene.background = mode === 'immersive-vr' ? new THREE.Color('#05070f') : null;
+    scene.fog = null;
+    buildPassthroughLights(scene);
+    scene.add(holo, pointer);
+    world = { update() {} };
+    newGame(HEADSET);
+    board = makeBoard();
+    scene.add(board);
+    for (const i of [0, 1]) {
       const hand = renderer.xr.getHand(i);
       hand.addEventListener('connected', (e) => { hand.userData.handedness = e.data.handedness; });
       scene.add(hand);
-      return hand;
-    });
+      xrHands.push(hand);
+    }
     session.addEventListener('end', () => location.reload());
     renderer.setAnimationLoop(xrFrame);
   } catch (err) {
-    setStatus(`Couldn't start the headset session: ${err.message}. Hand tracking must be turned on in the Quest settings.`);
+    setStatus(`Couldn't start the headset session: ${err.message}. Turn on hand tracking in the Quest settings.`);
   }
 });
 
-const tmp = new THREE.Vector3();
-let panelTimer = 0;
+// In the headset the page HUD isn't visible, so the act and progress
+// float on a small board above the stage.
+let board = null, boardTimer = 0;
+function makeBoard() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 256;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.1), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+  mesh.position.copy(HEADSET.center).add(new THREE.Vector3(0, HEADSET.size + 0.12, 0));
+  mesh.userData.canvas = c;
+  return mesh;
+}
+function drawBoard() {
+  const c = board.userData.canvas, g = c.getContext('2d'), act = show.current;
+  g.clearRect(0, 0, c.width, c.height);
+  g.fillStyle = 'rgba(10,13,26,0.6)';
+  g.beginPath(); g.roundRect(0, 0, c.width, c.height, 48); g.fill();
+  g.fillStyle = act.color;
+  g.font = '700 64px system-ui, sans-serif';
+  g.fillText(`Act ${ROMAN[show.act]} · ${act.name}`, 48, 96);
+  g.fillStyle = 'rgba(255,255,255,0.15)';
+  g.fillRect(48, 140, 928, 20);
+  g.fillStyle = act.color;
+  g.fillRect(48, 140, (928 * show.filled) / Math.max(1, show.slots.length), 20);
+  g.fillStyle = '#eef2fb';
+  g.font = '44px system-ui, sans-serif';
+  const cmd = COMMANDS[tracker.pose];
+  g.fillText(`${show.filled} / ${show.slots.length}   ·   ${smoothed ? cmd.label : 'Show your hand'}`, 48, 222);
+  board.material.map.needsUpdate = true;
+}
+
+let xrT = 0;
 function xrFrame() {
-  const dt = Math.min(clock.getDelta(), 0.1);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  xrT += dt;
   const hands = [];
   for (const hand of xrHands) {
-    const joints = hand.joints;
-    if (!joints?.wrist?.visible) continue;
-    const points = XR_JOINTS.map((name) => { joints[name].getWorldPosition(tmp); return { x: tmp.x, y: tmp.y, z: tmp.z }; });
-    hands.push({ key: hand.userData.handedness === 'right' ? 'Right' : 'Left', points });
+    const j = hand.joints;
+    if (!j?.wrist?.visible) continue;
+    hands.push({
+      key: hand.userData.handedness === 'right' ? 'Right' : 'Left',
+      points: XR_JOINTS.map((name) => { j[name].getWorldPosition(tmp); return { x: tmp.x, y: tmp.y, z: tmp.z }; }),
+    });
   }
-  conduct(hands, dt);
-  panelTimer -= dt;
-  if (panelTimer <= 0) { drawPanel(); panelTimer = 0.2; }
-  renderer.render(scene, xrCam);
+  conduct(hands, dt, xrT);
+  if ((boardTimer -= dt) <= 0) { drawBoard(); boardTimer = 0.15; }
+  renderer.render(scene, camera);
 }
