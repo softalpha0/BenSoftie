@@ -125,6 +125,24 @@
     .build-art figcaption { color: #7d7d7d; font-size: 12px; margin-top: 10px; }
     .github-more { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 24px; border: 2px dashed var(--line); border-radius: 16px; }
     .github-more p { margin: 0; color: var(--muted); }
+    .products-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 44px 0 16px; }
+    .products-head h3 { font-family: var(--display); text-transform: uppercase; font-size: 28px; margin: 0; letter-spacing: 0.02em; }
+    .products-head span { color: var(--muted); font-size: 14px; }
+    .products { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .product { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: border-color .2s, transform .2s; }
+    .product:hover { border-color: var(--red); transform: translateY(-2px); }
+    .product .event { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--red); }
+    .product h4 { font-family: var(--display); text-transform: uppercase; font-size: 26px; line-height: 1; margin: 0; color: var(--ink); }
+    .product p { margin: 0; font-size: 14.5px; color: #3a3a3a; }
+    .product .tags { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: auto; padding-top: 6px; }
+    .product .plinks { display: flex; gap: 16px; font-weight: 600; font-size: 14px; }
+    .product .plinks a { color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--red); }
+    .product .plinks a:hover { color: var(--red); }
+    .also { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; list-style: none; padding: 0; }
+    .also li { display: flex; gap: 10px; align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; min-width: 0; }
+    .also a { font-weight: 700; color: var(--ink); text-decoration: none; white-space: nowrap; }
+    .also a:hover { color: var(--red); }
+    .also span { color: var(--muted); }
 
     /* Expertise */
     .skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
@@ -183,6 +201,8 @@
       .stats > div:nth-child(2) { border-right: 0; }
       .stats > div:nth-child(-n+2) { border-bottom: 1px solid #262626; }
       .skills { grid-template-columns: 1fr; }
+      .products { grid-template-columns: 1fr 1fr; }
+      .also { grid-template-columns: 1fr; }
       .build-art { border-left: 0; border-top: 1px solid #222; }
       .build-copy { padding: 28px; }
       .nav-links { display: none; }
@@ -196,6 +216,7 @@
       .section-head .rule { display: none; }
       .stats b { font-size: 36px; }
       .build h3 { font-size: 44px; }
+      .products { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -246,7 +267,7 @@
         <div><b>40K<em>+</em></b><span>active members grown at PepperDex</span></div>
         <div><b>2018</b><span>building web3 communities since</span></div>
         <div><b>2</b><span>communities built from day one</span></div>
-        <div><b>1</b><span>live product shipped on Nansen data</span></div>
+        <div><b>25<em>+</em></b><span>products shipped, 10 live on the web</span></div>
       </div>
     </div>
 
@@ -336,6 +357,109 @@
             <figcaption>Illustration of the core idea. The live app maps every real holder from Nansen.</figcaption>
           </figure>
         </article>
+        <div class="products-head"><h3>More products I've shipped</h3><span>Hackathon builds and side projects, all open source</span></div>
+        <div class="products">
+          <article class="product">
+            <span class="event">Airwallex Agentic Banking Hackathon 2026</span>
+            <h4>Keel</h4>
+            <p>A revenue-based lending agent. It decides every merchant credit request so platform cash never drops below its floor. Claude picks among the safe options, code enforces the rules.</p>
+            <div class="tags">TypeScript · Claude · Airwallex API</div>
+            <div class="plinks"><a href="https://www.keel.cards" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/Keel" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Strike Finance Hackathon 2026</span>
+            <h4>Argus</h4>
+            <p>Get paid to trade on Strike. Argus works your order as a maker order using live L3 queue data, turning a 0.05% fee into a rebate.</p>
+            <div class="tags">TypeScript · Fastify · React · Strike API</div>
+            <div class="plinks"><a href="https://argus-5es2.onrender.com" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/Argus" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">CreateOS × Stripe Projects 2026</span>
+            <h4>Sentinel402</h4>
+            <p>An AI agent that hacks your smart contract before attackers do: it writes Foundry exploit tests, runs them in a sandbox and only reports bugs it can prove.</p>
+            <div class="tags">Claude agent · Foundry · Stripe Checkout</div>
+            <div class="plinks"><a href="https://github.com/softalpha0/sentinel402" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Qloo-powered</span>
+            <h4>Opener</h4>
+            <p>An AI tour-routing agent for independent artists that plans tours around where the fans actually are, not just the biggest cities.</p>
+            <div class="tags">Next.js · Qloo MCP · Gemini / Claude</div>
+            <div class="plinks"><a href="https://opener-9w48.onrender.com" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/Opener" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">AI video</span>
+            <h4>Inkcut</h4>
+            <p>Turns a topic, a script or your own voiceover into a narrated cartoon explainer video: stickman, whiteboard, storybook and more.</p>
+            <div class="tags">Next.js · Redis queue · FFmpeg · Supabase</div>
+            <div class="plinks"><a href="https://inkcut-web.onrender.com" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/Inkcut" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Zcash × NEAR Intents</span>
+            <h4>Crowdline</h4>
+            <p>Privacy scoring for shielded ZEC swaps. Counts how many recent swaps look like yours, scores it out of 100, and rewrites it before anything is sent.</p>
+            <div class="tags">TypeScript · React 19 · Vite</div>
+            <div class="plinks"><a href="https://github.com/softalpha0/Crowdline" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">MoonPay PayBox Hackathon</span>
+            <h4>SOL Rescue</h4>
+            <p>Finds SOL locked as rent in empty Solana token accounts and returns it in one transaction.</p>
+            <div class="tags">Solana · PayBox plugin</div>
+            <div class="plinks"><a href="https://sol-rescue-vercel-site.vercel.app" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/SOL-Rescue" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Build with CMC: API Hackathon</span>
+            <h4>Bedrock</h4>
+            <p>An explorer for tokenised real-world assets: equities, Treasuries, money-market funds, commodities and their issuers.</p>
+            <div class="tags">CoinMarketCap RWA API</div>
+            <div class="plinks"><a href="https://bedrock-rygi.onrender.com" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/bedrock" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Flare Summer Signal 2026</span>
+            <h4>FluxVault</h4>
+            <p>The first yield optimizer built for Flare FAssets. Deposit FXRP, FBTC or FDOGE and earn yield automatically, non-custodially.</p>
+            <div class="tags">Solidity · Flare</div>
+            <div class="plinks"><a href="https://fluxvault.vercel.app" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/FluxVault" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Arc</span>
+            <h4>AgentTab</h4>
+            <p>Prepaid USDC tabs for AI agents and API providers. Clients sign EIP-712 usage receipts, providers claim on-chain.</p>
+            <div class="tags">Solidity · Foundry · React · wagmi</div>
+            <div class="plinks"><a href="https://arc-studio-7b9cb270eee54f05855ff250.vercel.app" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/AgentTab" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Chain Jam Vol. 1</span>
+            <h4>Claw</h4>
+            <p>A provably-fair claw machine game. One VRF word decides the grip, the slip and the bonus prize.</p>
+            <div class="tags">Game · VRF</div>
+            <div class="plinks"><a href="https://claw-jam.netlify.app" target="_blank" rel="noopener">Live ↗</a><a href="https://github.com/softalpha0/Claw-Machine" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+          <article class="product">
+            <span class="event">Inside the Game Hackathon</span>
+            <h4>MatchGist</h4>
+            <p>One football match told to each fan in the way that fits their channel, data budget and language, from SMS in Hindi to a smartwatch.</p>
+            <div class="tags">Next.js · FastAPI · LLM agent</div>
+            <div class="plinks"><a href="https://github.com/softalpha0/MatchGist" target="_blank" rel="noopener">Code ↗</a></div>
+          </article>
+        </div>
+        <ul class="also">
+          <li><a href="https://github.com/softalpha0/Arc-Invoice" target="_blank" rel="noopener">Arc Invoice</a><span>Instant USDC invoicing on Arc mainnet</span></li>
+          <li><a href="https://github.com/softalpha0/RangeKeeper" target="_blank" rel="noopener">Rangekeeper</a><span>Self-recentering Uniswap v3 liquidity vault on Monad</span></li>
+          <li><a href="https://github.com/softalpha0/Flopline" target="_blank" rel="noopener">Flopline</a><span>Exchange for cash-settled GPU-hour contracts on Monad</span></li>
+          <li><a href="https://github.com/softalpha0/SolarStream" target="_blank" rel="noopener">SolarStream</a><span>Verified solar energy to on-chain RWA yield on Creditcoin</span></li>
+          <li><a href="https://github.com/softalpha0/Flow_Protocol" target="_blank" rel="noopener">Flow Protocol</a><span>Streaming payments, milestone escrow and splits on Sui</span></li>
+          <li><a href="https://github.com/softalpha0/Agentvault" target="_blank" rel="noopener">AgentVault</a><span>Private marketplace for AI agent services on SKALE</span></li>
+          <li><a href="https://github.com/softalpha0/FourCast" target="_blank" rel="noopener">FourCast</a><span>DeFi intelligence agent for Four.meme bonding curves</span></li>
+          <li><a href="https://github.com/softalpha0/Sentinel" target="_blank" rel="noopener">Risk Sentinel</a><span>Leaderless AI swarm trading Solana memecoins on Tashi</span></li>
+          <li><a href="https://github.com/softalpha0/agent-bazaar" target="_blank" rel="noopener">AgentBazaar</a><span>Pay-per-query service registry for AI agents via x402</span></li>
+          <li><a href="https://github.com/softalpha0/EtherMod" target="_blank" rel="noopener">EtherMod</a><span>Codemod recipes for Web3 JS/TS library migrations</span></li>
+          <li><a href="https://github.com/softalpha0/PrivaFi" target="_blank" rel="noopener">PrivaFi</a><span>Confidential DeFi suite with encrypted on-chain balances</span></li>
+          <li><a href="https://github.com/softalpha0/veilfi" target="_blank" rel="noopener">VeilFi</a><span>Confidential Aave yield vault on iExec Nox TEE</span></li>
+          <li><a href="https://github.com/softalpha0/Friendzone-campfire" target="_blank" rel="noopener">Friendzone Campfire</a><span>Co-op hangout game in Decentraland</span></li>
+          <li><a href="https://github.com/softalpha0/PoB" target="_blank" rel="noopener">Proof of Belief</a><span>Discord bot verifying community contributions for Spicenet</span></li>
+        </ul>
         <div class="github-more">
           <p>More experiments, hackathon builds and open-source work live on my GitHub.</p>
           <a class="btn" href="https://github.com/softalpha0" target="_blank" rel="noopener">github.com/softalpha0 ↗</a>
